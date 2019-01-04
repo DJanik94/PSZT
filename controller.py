@@ -39,11 +39,11 @@ class FuzzyCarController:
             antecedent=((self.leftDistance['far'] & self.centerDistance['far'] & self.rightDistance['far']) |
                         (self.leftDistance['safe'] & self.centerDistance['far'] & self.rightDistance['safe']) |
                         (self.leftDistance['close'] & self.centerDistance['far'] & self.rightDistance['close'])),
-            consequent=(self.speedControl['accelerate'] and self.turn['do_nothing']), label='acc, 0')
+            consequent=(self.speedControl['accelerate'], self.turn['do_nothing']), label='acc, 0')
 
         self.rule2 = ctrl.Rule(
             antecedent=(self.leftDistance['far'] & self.centerDistance['far'] & self.rightDistance['safe']),
-            consequent=(self.speedControl['accelerate'] and self.turn['turn_left']), label='acc, L')
+            consequent=(self.speedControl['accelerate'], self.turn['turn_left']), label='acc, L')
 
         self.rule3 = ctrl.Rule(
             antecedent=((self.leftDistance['far'] & self.centerDistance['far'] & self.rightDistance['close']) |
@@ -51,29 +51,29 @@ class FuzzyCarController:
                         (self.leftDistance['far'] & self.centerDistance['safe'] & self.rightDistance['close']) |
                         (self.leftDistance['safe'] & self.centerDistance['far'] & self.rightDistance['close']) |
                         (self.leftDistance['safe'] & self.centerDistance['safe'] & self.rightDistance['close'])),
-            consequent=(self.speedControl['do_nothing'] and self.turn['turn_left']), label='0, L')
+            consequent=(self.speedControl['do_nothing'], self.turn['turn_left']), label='0, L')
 
         self.rule4 = ctrl.Rule(
             antecedent=((self.leftDistance['far'] & self.centerDistance['safe'] & self.rightDistance['far']) |
                         (self.leftDistance['safe'] & self.centerDistance['safe'] & self.rightDistance['safe']) |
                         (self.leftDistance['close'] & self.centerDistance['safe'] & self.rightDistance['close'])),
-            consequent=(self.speedControl['do_nothing'] and self.turn['do_nothing']), label='0, 0')
+            consequent=(self.speedControl['do_nothing'], self.turn['do_nothing']), label='0, 0')
 
         self.rule5 = ctrl.Rule(
             antecedent=((self.leftDistance['far'] & self.centerDistance['close'] & self.rightDistance['far']) |
                         (self.leftDistance['safe'] & self.centerDistance['close'] & self.rightDistance['safe']) |
                         (self.leftDistance['close'] & self.centerDistance['close'] & self.rightDistance['close'])),
-            consequent=(self.speedControl['brake'] and self.turn['do_nothing']), label='brake, 0')
+            consequent=(self.speedControl['brake'], self.turn['do_nothing']), label='brake, 0')
 
         self.rule6 = ctrl.Rule(
             antecedent=((self.leftDistance['far'] & self.centerDistance['close'] & self.rightDistance['safe']) |
                         (self.leftDistance['far'] & self.centerDistance['close'] & self.rightDistance['close']) |
                         (self.leftDistance['safe'] & self.centerDistance['close'] & self.rightDistance['close'])),
-            consequent=(self.speedControl['brake'] and self.turn['turn_left']), label='brake, L')
+            consequent=(self.speedControl['brake'], self.turn['turn_left']), label='brake, L')
 
         self.rule7 = ctrl.Rule(
             antecedent=(self.leftDistance['safe'] & self.centerDistance['far'] & self.rightDistance['far']),
-            consequent=(self.speedControl['accelerate'] and self.turn['turn_right']), label='acc, R')
+            consequent=(self.speedControl['accelerate'], self.turn['turn_right']), label='acc, R')
 
         self.rule8 = ctrl.Rule(
             antecedent=((self.leftDistance['safe'] & self.centerDistance['safe'] & self.rightDistance['far']) |
@@ -81,18 +81,20 @@ class FuzzyCarController:
                         (self.leftDistance['close'] & self.centerDistance['far'] & self.rightDistance['safe']) |
                         (self.leftDistance['close'] & self.centerDistance['safe'] & self.rightDistance['far']) |
                         (self.leftDistance['close'] & self.centerDistance['safe'] & self.rightDistance['safe'])),
-            consequent=(self.speedControl['do_nothing'] and self.turn['turn_right']), label='0, R')
+            consequent=(self.speedControl['do_nothing'], self.turn['turn_right']), label='0, R')
 
         self.rule9 = ctrl.Rule(
             antecedent=((self.leftDistance['safe'] & self.centerDistance['close'] & self.rightDistance['far']) |
                         (self.leftDistance['close'] & self.centerDistance['close'] & self.rightDistance['far']) |
                         (self.leftDistance['close'] & self.centerDistance['close'] & self.rightDistance['safe'])),
-            consequent=(self.speedControl['brake'] and self.turn['turn_right']), label='brake, R')
+            consequent=(self.speedControl['brake'], self.turn['turn_right']), label='brake, R')
 
         """Generate controller engine"""
         self.engine_cs = ctrl.ControlSystem(rules=[self.rule1, self.rule2, self.rule3, self.rule3, self.rule4,
                                                    self.rule5, self.rule6, self.rule7, self.rule8, self.rule9])
         self.engine = ctrl.ControlSystemSimulation(self.engine_cs)
+
+        self.dupa=5
 
     def visualise(self):
         self.leftDistance.view()
