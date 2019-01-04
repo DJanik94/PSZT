@@ -20,19 +20,19 @@ class FuzzyCarController:
             antecedent['far'] = fuzz.trapmf(self.inputUniverse, [60, 100, 200, 200])
 
         """Generate space for consequent; assuming binary outputs (like pressing a key)"""
-        self.outputUniverse = [-1, 0, 1]
-
+        #self.outputUniverse = [-1, 0, 1]
+        self.outputUniverse = np.linspace(-100, 100, num=201, endpoint=True)
         """Generate consequent set"""
         self.speedControl = ctrl.Consequent(self.outputUniverse, 'sc', 'mom')
         self.turn = ctrl.Consequent(self.outputUniverse, 'turn', 'mom')
 
         """Generate membership functions for outputs"""
-        self.speedControl['brake'] = fuzz.trimf(self.outputUniverse, [-1, -1, -1])
-        self.speedControl['do_nothing'] = fuzz.trimf(self.outputUniverse, [0, 0, 0])
-        self.speedControl['accelerate'] = fuzz.trimf(self.outputUniverse, [1, 1, 1])
-        self.turn['turn_left'] = fuzz.trimf(self.outputUniverse, [-1, -1, -1])
-        self.turn['do_nothing'] = fuzz.trimf(self.outputUniverse, [0, 0, 0])
-        self.turn['turn_right'] = fuzz.trimf(self.outputUniverse, [1, 1, 1])
+        self.speedControl['brake'] = fuzz.trimf(self.outputUniverse, [-100, -100, -99])
+        self.speedControl['do_nothing'] = fuzz.trimf(self.outputUniverse, [-1, 0, 1])
+        self.speedControl['accelerate'] = fuzz.trimf(self.outputUniverse, [99, 100, 100])
+        self.turn['turn_left'] = fuzz.trimf(self.outputUniverse, [-100, -100, -99])
+        self.turn['do_nothing'] = fuzz.trimf(self.outputUniverse, [-1, 0, 1])
+        self.turn['turn_right'] = fuzz.trimf(self.outputUniverse, [99, 100, 100])
 
         """Generate rules"""
         self.rule1 = ctrl.Rule(
@@ -117,4 +117,4 @@ a = FuzzyCarController()
 
 a.visualise()
 
-print(a.compute(190, 1, 1))
+print(a.compute(1, 1, 1))
