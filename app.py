@@ -45,7 +45,7 @@ oldRearPosition = [0,0]
 frontWheel = [0,0]
 rearWheel = [0,0]
 boost = []
-basicFont = pygame.font.Font("font_game.otf", 24)
+basicFont = pygame.font.Font("fonts/font_game.otf", 24)
 overheadImage = pygame.image.load('graphics/overhead_tile.png').convert_alpha()
 trackImage11 = pygame.image.load('graphics/b-1-1.png').convert_alpha()
 trackImage21 = pygame.image.load('graphics/b-2-1.png').convert_alpha()
@@ -250,6 +250,25 @@ def drawBack():
     windowSurface.blit(overheadImage,(position[2],position[3]+600))
     windowSurface.blit(overheadImage,(position[2]-200,position[3]+600))
 
+def getDistance(degree):
+    x = oldCenter[0] + 62*math.cos(degree) # car.png has 110x44px; we need to be outside of it, even when degree = 45
+    y = oldCenter[1] + 62*math.sin(degree) # dx, dy are taken form trigonometry
+    pointAhead = (int(x), int(y))
+    colour = windowSurface.get_at(pointAhead)
+    while(colour[0] >= 88 and colour[0] <= 91 and colour[1]>=88 and colour[1]<=91 and colour[2]>=88 and colour[2] <= 91 # road colour = [89,89,89]
+          and x<WINDOWWIDTH-6 and y<WINDOWHEIGHT-6 and x>6 and y>6):
+        x = x+ 5*math.cos(degree) # cooridinates depend on the current angle, we check with the step 5px in both directions (x,y)
+        y = y + 5*math.sin(degree)
+        pointAhead = (int(x),int(y))
+        colour = windowSurface.get_at(pointAhead)
+    pygame.draw.rect(windowSurface, WHITE, (int(x), int(y), 5, 5), 1) # draw cursor
+    distance = math.sqrt((x - oldCenter[0])**2 + (y- oldCenter[1])**2) # from formula for distance in x,y coordinate system
+    textDistance = 'Distance ahead:'+ str(distance)
+    textDisplay = basicFont.render(textDistance, True, WHITE, )
+    windowSurface.blit(textDisplay, (20, 20))
+
+
+
 def rotation(image,where,degree):
     # Calculate rotated graphics & centre position
     surf =  pygame.Surface((100,50))
@@ -311,7 +330,7 @@ while option[4]==1:
     # Check the background colour
     colour = windowSurface.get_at((oldCenter))# centre colour
     if colour[0] >= 88 and colour[0] <= 91 or colour[0] == 165 or colour[0] == 255:
-        dirtPosition = 0
+        1;
     else:
         movespeed[2] = 3
         if movespeed[0] >4:
@@ -376,4 +395,5 @@ while option[4]==1:
 
     # draw the window onto the screen
     framerate()
+    getDistance(moveRadians)
     pygame.display.update()
