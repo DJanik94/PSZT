@@ -1,5 +1,9 @@
 from __future__ import division
-import pygame, sys, time, random, math
+
+import sys
+import math
+
+import pygame
 from pygame.locals import *
 
 #----------------------------------------
@@ -8,155 +12,162 @@ from pygame.locals import *
 #
 #----------------------------------------
 
-# set up pygame
-pygame.init()
-mainClock = pygame.time.Clock()
+class Game:
+    def __init__(self):
+        pygame.init()
+        self.mainClock = pygame.time.Clock()
+        self._init_game_context()
 
-# set up the window
-WINDOWWIDTH = 800
-WINDOWHEIGHT = 400
-windowSurface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT),0,32)
-pygame.display.set_caption('PSZT')
+        pass
 
-# set up the colors
-BLACK = (0, 0, 0)
-WHITE = (255,255,255)
+    def _init_game_context(self):
+        # set up the window
+        WINDOWWIDTH = 800
+        WINDOWHEIGHT = 400
+        self.windowSurface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT), 0, 32)
+        pygame.display.set_caption('PSZT')
+        self.playerSettings = []
 
-# set up variables
-moveLeft = False
-moveRight = False
-moveUp = False
-moveDown = False
-MOVESPEED = 50
-carSettings = [16, 0, 12, 20, 2, 60, 2, 120]# 0-Max Speed, 1-Current Count, 2-Acceleration rate, 3-Braking Rate, 4-Free Wheel, 5-Gear Change,6-Turn Speed,7-Max Boost
-movespeed = [0,0,2,0]#0-Current movespeed, 1-Max movespeed, 2-Rotation speed, 3-Turn Speed Multiply
-position = [650,250,0,0,0,0]# 0-1 Track position, 2-3 Background position, 4-5 Previous position
-rotRect = (110,44)
-degree = 0# Player rotation angle
-radians = 0
-moveRadians = 0
-drawTrack = [1,'laps1.txt']
-fps = [0,60,10,60,0]# 0-On/Off, 1-Set Point, 2-Actual FPS, 3-Lowest Recorded, 4-Highest Recorded
-playerSettings = [WINDOWWIDTH/2-50,WINDOWHEIGHT/2,0,0]# 0-Player Horizontal, 1-Player Vertical, 2-Rotation position (x5 for degrees)
-curser = [40, 190, 200, 50]# Start position for the curser on the menu
-option = [0, 'Start Trial','Settings','Quit', 0]# menu options
-oldFrontPosition = [0,0]
-oldRearPosition = [0,0]
-frontWheel = [0,0]
-rearWheel = [0,0]
-boost = []
-basicFont = pygame.font.Font("fonts/font_game.otf", 24)
-overheadImage = pygame.image.load('graphics/overhead_tile.png').convert_alpha()
-trackImage11 = pygame.image.load('graphics/b-1-1.png').convert_alpha()
-trackImage21 = pygame.image.load('graphics/b-2-1.png').convert_alpha()
-trackImage31 = pygame.image.load('graphics/b-3-1.png').convert_alpha()
-trackImage41 = pygame.image.load('graphics/b-4-1.png').convert_alpha()
-trackImage5 = pygame.image.load('graphics/st-v-3.png').convert_alpha()
-trackImage51 = pygame.image.load('graphics/st-v-3-k1.png').convert_alpha()
-trackImage52 = pygame.image.load('graphics/st-v-3-k2.png').convert_alpha()
-trackImage53 = pygame.image.load('graphics/st-v-3-k3.png').convert_alpha()
-trackImage54 = pygame.image.load('graphics/st-v-3-k4.png').convert_alpha()
-trackImage6 = pygame.image.load('graphics/st-h-3.png').convert_alpha()
-trackImage61 = pygame.image.load('graphics/st-h-3-k1.png').convert_alpha()
-trackImage62 = pygame.image.load('graphics/st-h-3-k2.png').convert_alpha()
-trackImage63 = pygame.image.load('graphics/st-h-3-k3.png').convert_alpha()
-trackImage64 = pygame.image.load('graphics/st-h-3-k4.png').convert_alpha()
-trackImage12 = pygame.image.load('graphics/b-1-2.png').convert_alpha()
-trackImage22 = pygame.image.load('graphics/b-2-2.png').convert_alpha()
-trackImage32 = pygame.image.load('graphics/b-3-2.png').convert_alpha()
-trackImage42 = pygame.image.load('graphics/b-4-2.png').convert_alpha()
-trackImage13 = pygame.image.load('graphics/b-1-3.png').convert_alpha()
-trackImage23 = pygame.image.load('graphics/b-2-3.png').convert_alpha()
-trackImage33 = pygame.image.load('graphics/b-3-3.png').convert_alpha()
-trackImage43 = pygame.image.load('graphics/b-4-3.png').convert_alpha()
-trackImage14 = pygame.image.load('graphics/b-1-4.png').convert_alpha()
-trackImage24 = pygame.image.load('graphics/b-2-4.png').convert_alpha()
-trackImage34 = pygame.image.load('graphics/b-3-4.png').convert_alpha()
-trackImage44 = pygame.image.load('graphics/b-4-4.png').convert_alpha()
+        # set up the colors
+        BLACK = (0, 0, 0)
+        WHITE = (255, 255, 255)
 
-def setDisplay(w,h):
-    playerSettings[0] = WINDOWWIDTH/2-50
-    playerSettings[1] = WINDOWHEIGHT/2
-    windowSurface = pygame.display.set_mode((w, h),0,32)
-    pygame.display.set_caption('PSZT')
+        # set up variables
+        self.moveLeft = False
+        self.moveRight = False
+        self.moveUp = False
+        self.moveDown = False
+        self.MOVESPEED = 50
+        self.position = None
+        self.playerImage = None
+        self.carSettings = [16, 0, 12, 20, 2, 60, 2,
+                       120]  # 0-Max Speed, 1-Current Count, 2-Acceleration rate, 3-Braking Rate, 4-Free Wheel, 5-Gear Change,6-Turn Speed,7-Max Boost
+        self.movespeed = [0, 0, 2, 0]  # 0-Current movespeed, 1-Max movespeed, 2-Rotation speed, 3-Turn Speed Multiply
+        self.position = [650, 250, 0, 0, 0, 0]  # 0-1 Track position, 2-3 Background position, 4-5 Previous position
+        self.rotRect = (110, 44)
+        self.degree = 0  # Player rotation angle
+        self.radians = 0
+        self.moveRadians = 0
+        self.drawTrack = [1, 'laps1.txt']
+        self.fps = [0, 60, 10, 60, 0]  # 0-On/Off, 1-Set Point, 2-Actual FPS, 3-Lowest Recorded, 4-Highest Recorded
+        self.playerSettings = [WINDOWWIDTH / 2 - 50, WINDOWHEIGHT / 2, 0,
+                          0]  # 0-Player Horizontal, 1-Player Vertical, 2-Rotation position (x5 for degrees)
+        self.curser = [40, 190, 200, 50]  # Start position for the curser on the menu
+        self.option = [0, 'Start Trial', 'Settings', 'Quit', 0]  # menu options
+        self.oldFrontPosition = [0, 0]
+        self.oldRearPosition = [0, 0]
+        self.frontWheel = [0, 0]
+        self.rearWheel = [0, 0]
+        self.boost = []
 
-def framerate():
-    mainClock.tick(fps[1])
-    fps[2]=int(mainClock.get_fps())
-    if fps[2]<fps[3]:
-        fps[3]=fps[2]
-    if fps[2]>fps[4]:
-        fps[4]=fps[2]
+        self.basicFont = pygame.font.Font("fonts/font_game.otf", 24)
 
-# Opening menu
-def menu():
-    # run the menu loop
-    moveUp = False
-    moveDown = False
-    moveLeft = False
-    moveRight = False
-    global position
-    global playerImage
-    global boost
-    while option[4]==0:# Option [4] is the selection output bit
-        # check for events
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN:
-                    # change the keyboard variables
-                    if event.key == K_UP or event.key == ord('w'):#Curser Up
-                        moveDown = False
-                        moveUp = True
-                    if event.key == K_DOWN or event.key == ord('s'):#Curser Down
-                        moveUp = False
-                        moveDown = True
-                    if event.key == K_RETURN or event.key == K_SPACE:#Select current option
-                        if curser[1]==190:#Start game
-                            position = [(WINDOWWIDTH/2)+50,(WINDOWHEIGHT/2)-50,0,0,0,0]
-                            playerImage = playerGraphics()
-                            boost = []
-                            playerSettings[2]=0
-                            option[4]=1
-                        if curser[1]==290:#Quit game
+        overheadImage = pygame.image.load('graphics/overhead_tile.png').convert_alpha()
+        trackImage11 = pygame.image.load('graphics/b-1-1.png').convert_alpha()
+        trackImage21 = pygame.image.load('graphics/b-2-1.png').convert_alpha()
+        trackImage31 = pygame.image.load('graphics/b-3-1.png').convert_alpha()
+        trackImage41 = pygame.image.load('graphics/b-4-1.png').convert_alpha()
+        trackImage5 = pygame.image.load('graphics/st-v-3.png').convert_alpha()
+        trackImage51 = pygame.image.load('graphics/st-v-3-k1.png').convert_alpha()
+        trackImage52 = pygame.image.load('graphics/st-v-3-k2.png').convert_alpha()
+        trackImage53 = pygame.image.load('graphics/st-v-3-k3.png').convert_alpha()
+        trackImage54 = pygame.image.load('graphics/st-v-3-k4.png').convert_alpha()
+        trackImage6 = pygame.image.load('graphics/st-h-3.png').convert_alpha()
+        trackImage61 = pygame.image.load('graphics/st-h-3-k1.png').convert_alpha()
+        trackImage62 = pygame.image.load('graphics/st-h-3-k2.png').convert_alpha()
+        trackImage63 = pygame.image.load('graphics/st-h-3-k3.png').convert_alpha()
+        trackImage64 = pygame.image.load('graphics/st-h-3-k4.png').convert_alpha()
+        trackImage12 = pygame.image.load('graphics/b-1-2.png').convert_alpha()
+        trackImage22 = pygame.image.load('graphics/b-2-2.png').convert_alpha()
+        trackImage32 = pygame.image.load('graphics/b-3-2.png').convert_alpha()
+        trackImage42 = pygame.image.load('graphics/b-4-2.png').convert_alpha()
+        trackImage13 = pygame.image.load('graphics/b-1-3.png').convert_alpha()
+        trackImage23 = pygame.image.load('graphics/b-2-3.png').convert_alpha()
+        trackImage33 = pygame.image.load('graphics/b-3-3.png').convert_alpha()
+        trackImage43 = pygame.image.load('graphics/b-4-3.png').convert_alpha()
+        trackImage14 = pygame.image.load('graphics/b-1-4.png').convert_alpha()
+        trackImage24 = pygame.image.load('graphics/b-2-4.png').convert_alpha()
+        trackImage34 = pygame.image.load('graphics/b-3-4.png').convert_alpha()
+        trackImage44 = pygame.image.load('graphics/b-4-4.png').convert_alpha()
+
+    def main_game(self):
+        pass
+
+
+    def framerate(self):
+        fps = self.fps
+        self.mainClock.tick(fps[1])
+        fps[2] = int(self.mainClock.get_fps())
+        if fps[2] < fps[3]:
+            fps[3] = fps[2]
+        if fps[2] > fps[4]:
+            fps[4] = fps[2]
+
+    def menu(self):
+        # run the menu loop
+        self.moveUp = False
+        self.moveDown = False
+
+        while self.option[4] == 0:# Option [4] is the selection output bit
+            # check for events
+            for _event in pygame.event.get():
+                if _event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if _event.type == KEYDOWN:
+                        # change the keyboard variables
+                        if _event.key == K_UP or _event.key == ord('w'):  # Curser Up
+                            self.moveDown = False
+                            self.moveUp = True
+                        if _event.key == K_DOWN or _event.key == ord('s'):  # Curser Down
+                            self.moveUp = False
+                            self.moveDown = True
+                        if _event.key == K_RETURN or _event.key == K_SPACE: # Select current option
+                            if self.curser[1] == 190:  # Start game
+                                self.position = [(self.WINDOWWIDTH/2)+50, (self.WINDOWHEIGHT/2)-50, 0, 0, 0, 0]
+                                self.playerImage = playerGraphics()
+                                self.boost = []
+                                self.playerSettings[2] = 0
+                                self.option[4] = 1
+                            if self.curser[1] == 290:  # Quit game
+                                pygame.quit()
+                                sys.exit()
+
+                if _event.type == KEYUP:
+                        if _event.key == K_ESCAPE:
                             pygame.quit()
                             sys.exit()
-            if event.type == KEYUP:
-                    if event.key == K_ESCAPE:
-                        pygame.quit()
-                        sys.exit()
-                    if event.key == K_UP or event.key == ord('w'):
-                        moveUp = False
-                    if event.key == K_DOWN or event.key == ord('s'):
-                        moveDown = False
+                        if _event.key == K_UP or _event.key == ord('w'):
+                            self.moveUp = False
+                        if _event.key == K_DOWN or _event.key == ord('s'):
+                            self.moveDown = False
 
-        # move the Curser
-        if moveDown and curser[1] < 290:
-            curser[1] += MOVESPEED
-            moveDown = False
-        if moveUp and curser[1] > 180:
-            curser[1] -= MOVESPEED
-            moveUp = False
+            # move the Curser
+            if self.moveDown and self.curser[1] < 290:
+                self.curser[1] += self.MOVESPEED
+                self.moveDown = False
+            if self.moveUp and self.curser[1] > 180:
+                self.curser[1] -= self.MOVESPEED
+                self.moveUp = False
 
-        # draw the background onto the surface & draw the banner
-        drawBack()
-        moveTrack()
+            # draw the background onto the surface & draw the banner
+            drawBack()
+            moveTrack()
 
-        # draw the curser onto the surface
-        pygame.draw.rect(windowSurface, WHITE, (curser[0],curser[1],curser[2],curser[3]),1)
+            # draw the curser onto the surface
+            pygame.draw.rect(windowSurface, WHITE, (curser[0],curser[1],curser[2],curser[3]),1)
 
-        # draw the options onto the surface
-        text1 = basicFont.render(option[1], True, WHITE,)
-        text2 = basicFont.render(option[2], True, WHITE,)
-        text3 = basicFont.render(option[3], True, WHITE,)
-        windowSurface.blit(text1, (52,202))
-        windowSurface.blit(text2, (52,252))
-        windowSurface.blit(text3, (52,302))
+            # draw the options onto the surface
+            text1 = basicFont.render(option[1], True, WHITE,)
+            text2 = basicFont.render(option[2], True, WHITE,)
+            text3 = basicFont.render(option[3], True, WHITE,)
+            windowSurface.blit(text1, (52,202))
+            windowSurface.blit(text2, (52,252))
+            windowSurface.blit(text3, (52,302))
 
-        framerate()
-        # draw the window onto the screen
-        pygame.display.update()
+            framerate()
+            # draw the window onto the screen
+            pygame.display.update()
 
 def playerGraphics():
     playerImage = pygame.image.load('graphics/car4.png').convert_alpha()
@@ -280,8 +291,7 @@ def rotation(image,where,degree):
     rotRect.center = oldCenter
     return rotatedImage, rotRect, oldCenter
 
-# run the game loop
-setDisplay(WINDOWWIDTH,WINDOWHEIGHT)
+
 menu()
 
 while option[4]==1:
