@@ -23,8 +23,8 @@ class FuzzyCarController:
         #self.outputUniverse = [-1, 0, 1]
         self.outputUniverse = np.linspace(-100, 100, num=201, endpoint=True)
         """Generate consequent set"""
-        self.speedControl = ctrl.Consequent(self.outputUniverse, 'sc', 'mom')
-        self.turn = ctrl.Consequent(self.outputUniverse, 'turn', 'mom')
+        self.speedControl = ctrl.Consequent(self.outputUniverse, 'sc', 'centroid')
+        self.turn = ctrl.Consequent(self.outputUniverse, 'turn', 'centroid')
 
         """Generate membership functions for outputs"""
         self.speedControl['brake'] = fuzz.trimf(self.outputUniverse, [-100, -100, -99])
@@ -113,8 +113,8 @@ class FuzzyCarController:
         return output
 
 
-a = FuzzyCarController()
 
-a.visualise()
-
-print(a.compute(1, 1, 1))
+if __name__ == '__main__':
+    a = FuzzyCarController()
+    a.visualise()
+    print(a.compute(1, 1, 1))
