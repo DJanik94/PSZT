@@ -6,7 +6,7 @@ import numpy as np
 class FuzzyCarController:
     def __init__(self):
         """Generate space for antecedents"""
-        self.inputUniverse = np.linspace(0, 200, num=201, endpoint=True)
+        self.inputUniverse = np.linspace(0, 600, num=600, endpoint=True)
 
         """Init fuzzy antecedents"""
         self.rightDistance = ctrl.Antecedent(self.inputUniverse, 'right_distance')
@@ -14,25 +14,30 @@ class FuzzyCarController:
         self.leftDistance = ctrl.Antecedent(self.inputUniverse, 'left_distance')
 
         """Generate membership functions for inputs"""
-        for antecedent in [self.leftDistance, self.centerDistance, self.rightDistance]:
-            antecedent['close'] = fuzz.trapmf(self.inputUniverse, [0, 0, 20, 60])
-            antecedent['safe'] = fuzz.trimf(self.inputUniverse, [20, 60, 100])
-            antecedent['far'] = fuzz.trapmf(self.inputUniverse, [60, 100, 200, 200])
+
+        self.centerDistance['close'] = fuzz.trapmf(self.inputUniverse, [0, 0, 75, 150])
+        self.centerDistance['safe'] = fuzz.trimf(self.inputUniverse, [75, 150, 225])
+        self.centerDistance['far'] = fuzz.trapmf(self.inputUniverse, [150, 225, 600, 600])
+
+        for antecedent in [self.leftDistance, self.rightDistance]:
+            antecedent['close'] = fuzz.trapmf(self.inputUniverse, [0, 0, 75, 150])
+            antecedent['safe'] = fuzz.trimf(self.inputUniverse, [75, 150, 225])
+            antecedent['far'] = fuzz.trapmf(self.inputUniverse, [150, 225, 600, 600])
 
         """Generate space for consequent; assuming binary outputs (like pressing a key)"""
         #self.outputUniverse = [-1, 0, 1]
         self.outputUniverse = np.linspace(-100, 100, num=201, endpoint=True)
         """Generate consequent set"""
         self.speedControl = ctrl.Consequent(self.outputUniverse, 'sc', 'centroid')
-        self.turn = ctrl.Consequent(self.outputUniverse, 'turn', 'centroid')
+        self.turn = ctrl.Consequent(self.outputUniverse, 'turn', 'mom')
 
         """Generate membership functions for outputs"""
-        self.speedControl['brake'] = fuzz.trimf(self.outputUniverse, [-100, -100, -99])
-        self.speedControl['do_nothing'] = fuzz.trimf(self.outputUniverse, [-1, 0, 1])
-        self.speedControl['accelerate'] = fuzz.trimf(self.outputUniverse, [99, 100, 100])
-        self.turn['turn_left'] = fuzz.trimf(self.outputUniverse, [-100, -100, -99])
-        self.turn['do_nothing'] = fuzz.trimf(self.outputUniverse, [-1, 0, 1])
-        self.turn['turn_right'] = fuzz.trimf(self.outputUniverse, [99, 100, 100])
+        self.speedControl['brake'] = fuzz.trimf(self.outputUniverse, [-51, -50, -5])
+        self.speedControl['do_nothing'] = fuzz.trimf(self.outputUniverse, [-12, 1, 25])
+        self.speedControl['accelerate'] = fuzz.trimf(self.outputUniverse, [0, 100, 101])
+        self.turn['turn_left'] = fuzz.trimf(self.outputUniverse, [-101, -100, -30])
+        self.turn['do_nothing'] = fuzz.trimf(self.outputUniverse, [-40, 0, 40])
+        self.turn['turn_right'] = fuzz.trimf(self.outputUniverse, [30, 100, 101])
 
         """Generate rules"""
         self.rule1 = ctrl.Rule(
@@ -104,12 +109,16 @@ class FuzzyCarController:
         self.turn.view()
 
     def compute(self, l_dist, c_dist, r_dist):
+
+        for i in l_dist, c_dist, r_dist:
+            if i < 0:
+                i = -i
         self.engine.input['left_distance'] = l_dist
         self.engine.input['center_distance'] = c_dist
         self.engine.input['right_distance'] = r_dist
 
         self.engine.compute()
-        output = (self.engine.output['sc'], self.engine.output['turn'])
+        output = (round(self.engine.output['sc'], 2), round(self.engine.output['turn'], 2))
         return output
 
 
@@ -117,4 +126,4 @@ class FuzzyCarController:
 if __name__ == '__main__':
     a = FuzzyCarController()
     a.visualise()
-    print(a.compute(1, 1, 1))
+    #print(a.compute(1, 1, 1))
