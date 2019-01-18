@@ -6,6 +6,7 @@ import math
 import pygame
 from pygame.locals import *
 import controller
+import random
 
 # ----------------------------------------
 # Based on Grip by Stuart Laxton
@@ -55,6 +56,8 @@ class Game:
         self.rear_wheel = [0, 0]
         self.boost = []
         self.auto_mode = False
+        self.number_of_boxes = 120
+        self.box_positions = [(random.randint(-2500, 1200), random.randint(-2500, 1200)) for _ in range (self.number_of_boxes)]
 
         self.basicFont = pygame.font.Font("fonts/font_game.otf", 24)
 
@@ -76,6 +79,10 @@ class Game:
         self.trackImage24 = pygame.image.load('graphics/b-2-4.png').convert_alpha()
         self.trackImage34 = pygame.image.load('graphics/b-3-4.png').convert_alpha()
         self.trackImage44 = pygame.image.load('graphics/b-4-4.png').convert_alpha()
+        self.boxImage = pygame.image.load('graphics/woodenBox.png').convert_alpha()
+
+
+
 
     def _init_game_settings(self):
         self.car_settings = [16,  # 0-Max Speed,
@@ -250,6 +257,22 @@ class Game:
         self.window_surfacee.blit(self.trackImage14, (self.position[0] - 1700, self.position[1] - 1200))
         self.window_surfacee.blit(self.trackImage24, (self.position[0] - 1700, self.position[1] - 500))
 
+        for point in self.box_positions:
+            self.window_surfacee.blit(self.boxImage, (self.position[0] + point[0], self.position[1] + point[1]))
+
+        """self.window_surfacee.blit(self.boxImage, (self.position[0] - 120, self.position[1] - 20))
+        self.window_surfacee.blit(self.boxImage, (self.position[0] - 45, self.position[1] - 300))
+        self.window_surfacee.blit(self.boxImage, (self.position[0] - 10, self.position[1] - 200))
+        self.window_surfacee.blit(self.boxImage, (self.position[0] - 500, self.position[1] - 500))
+        self.window_surfacee.blit(self.boxImage, (self.position[0] + 300, self.position[1] + 100))
+        self.window_surfacee.blit(self.boxImage, (self.position[0] + 350, self.position[1] + 100))
+        self.window_surfacee.blit(self.boxImage, (self.position[0] + 120, self.position[1] + 200))
+        self.window_surfacee.blit(self.boxImage, (self.position[0] - 465, self.position[1] + 300))
+        self.window_surfacee.blit(self.boxImage, (self.position[0] - 360, self.position[1] - 120))
+        self.window_surfacee.blit(self.boxImage, (self.position[0] - 1300, self.position[1] - 100))
+        self.window_surfacee.blit(self.boxImage, (self.position[0] + 100, self.position[1] + 500))
+        self.window_surfacee.blit(self.boxImage, (self.position[0] + 650, self.position[1] + 100))"""
+
     def drawBack(self):
         if self.position[2] >= 200:
             self.position[2] -= 200
@@ -321,14 +344,14 @@ class Game:
         text_display = self.basicFont.render(text_distance, True, self.WHITE, )
         self.window_surfacee.blit(text_display, (20, 20))"""
 
-        degree45 = 45 * (3.142 / 180)
+        degree_d = 22 * (3.142 / 180)
         x_a = self.old_center[0] + 62 * math.cos(
             degree)  # car.png has 110x44px; we need to be outside of it, even when degree = 45
         y_a = self.old_center[1] + 62 * math.sin(degree)  # dx, dy are taken form trigonometry
-        x_l = self.old_center[0] + 62 * math.cos(degree - degree45)
-        y_l = self.old_center[1] + 62 * math.sin(degree - degree45)
-        x_r = self.old_center[0] + 62 * math.cos(degree + degree45)
-        y_r = self.old_center[1] + 62 * math.sin(degree + degree45)
+        x_l = self.old_center[0] + 62 * math.cos(degree - degree_d)
+        y_l = self.old_center[1] + 62 * math.sin(degree - degree_d)
+        x_r = self.old_center[0] + 62 * math.cos(degree + degree_d)
+        y_r = self.old_center[1] + 62 * math.sin(degree + degree_d)
         point_a = (int(x_a), int(y_a))
         point_l = (int(x_l), int(y_l))
         point_r = (int(x_r), int(y_r))
@@ -346,15 +369,15 @@ class Game:
         while (colour_l[0] >= 88 and colour_l[0] <= 91 and colour_l[1] >= 88 and colour_l[1] <= 91 and colour_l[2] >= 88 and
                colour_l[2] <= 91
                and x_l < self.WINDOWWIDTH - 6 and y_l < self.WINDOWHEIGHT - 6 and x_l > 6 and y_l > 6):
-            x_l = x_l + 5 * math.cos(degree - degree45)
-            y_l = y_l + 5 * math.sin(degree - degree45)
+            x_l = x_l + 5 * math.cos(degree - degree_d)
+            y_l = y_l + 5 * math.sin(degree - degree_d)
             point_l = (int(x_l), int(y_l))
             colour_l = self.window_surfacee.get_at(point_l)
         while (colour_r[0] >= 88 and colour_r[0] <= 91 and colour_r[1] >= 88 and colour_r[1] <= 91 and colour_r[2] >= 88 and
                colour_r[2] <= 91
                and x_r < self.WINDOWWIDTH - 6 and y_r < self.WINDOWHEIGHT - 6 and x_r > 6 and y_r > 6):
-            x_r = x_r + 5 * math.cos(degree + degree45)
-            y_r = y_r + 5 * math.sin(degree + degree45)
+            x_r = x_r + 5 * math.cos(degree + degree_d)
+            y_r = y_r + 5 * math.sin(degree + degree_d)
             point_r = (int(x_r), int(y_r))
             colour_r = self.window_surfacee.get_at(point_r)
         pygame.draw.rect(self.window_surfacee, self.WHITE, (int(x_a), int(y_a), 5, 5), 1)
@@ -367,7 +390,7 @@ class Game:
         textDistance = 'Distance ahead:' + str(distanceAhead)
         textDisplay = self.basicFont.render(textDistance, True, self.WHITE, )
         self.window_surfacee.blit(textDisplay, (20, 20))
-        print (round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2))
+        #print (round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2))
         return round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2)
 
 
@@ -525,8 +548,10 @@ class Game:
 
         left, ahead, right = self.getDistance(self.move_radians)
         speedRatio, dirRatio = self.controller.compute(left, ahead, right)
+        #speedRatio =100;
+        #dirRatio = -100;
         if (dirRatio < 0):  # <
-            self.car_settings[8] = (dirRatio + 110) * 0.01  # from 0.1 to 2.1
+            self.car_settings[8] = (-dirRatio + 110) * 0.01  # from 0.1 to 2.1
             self.move_left = True
             self.move_right = False
         if (dirRatio > 0):

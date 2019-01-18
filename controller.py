@@ -20,9 +20,9 @@ class FuzzyCarController:
         self.centerDistance['far'] = fuzz.trapmf(self.inputUniverse, [150, 225, 600, 600])
 
         for antecedent in [self.leftDistance, self.rightDistance]:
-            antecedent['close'] = fuzz.trapmf(self.inputUniverse, [0, 0, 75, 150])
-            antecedent['safe'] = fuzz.trimf(self.inputUniverse, [75, 150, 225])
-            antecedent['far'] = fuzz.trapmf(self.inputUniverse, [150, 225, 600, 600])
+            antecedent['close'] = fuzz.trapmf(self.inputUniverse, [0, 0, 50, 100])
+            antecedent['safe'] = fuzz.trimf(self.inputUniverse, [50, 100, 200])
+            antecedent['far'] = fuzz.trapmf(self.inputUniverse, [100, 200, 600, 600])
 
         """Generate space for consequent; assuming binary outputs (like pressing a key)"""
         #self.outputUniverse = [-1, 0, 1]
@@ -32,12 +32,12 @@ class FuzzyCarController:
         self.turn = ctrl.Consequent(self.outputUniverse, 'turn', 'mom')
 
         """Generate membership functions for outputs"""
-        self.speedControl['brake'] = fuzz.trimf(self.outputUniverse, [-51, -50, -5])
-        self.speedControl['do_nothing'] = fuzz.trimf(self.outputUniverse, [-12, 1, 25])
-        self.speedControl['accelerate'] = fuzz.trimf(self.outputUniverse, [0, 100, 101])
-        self.turn['turn_left'] = fuzz.trimf(self.outputUniverse, [-101, -100, -30])
-        self.turn['do_nothing'] = fuzz.trimf(self.outputUniverse, [-40, 0, 40])
-        self.turn['turn_right'] = fuzz.trimf(self.outputUniverse, [30, 100, 101])
+        self.speedControl['brake'] = fuzz.trimf(self.outputUniverse, [-101, -100, -60])
+        self.speedControl['do_nothing'] = fuzz.trimf(self.outputUniverse, [-60, 1, 25])
+        self.speedControl['accelerate'] = fuzz.trimf(self.outputUniverse, [5, 100, 101])
+        self.turn['turn_left'] = fuzz.trimf(self.outputUniverse, [-101, -100, -40])
+        self.turn['do_nothing'] = fuzz.trimf(self.outputUniverse, [-50, 0, 50])
+        self.turn['turn_right'] = fuzz.trimf(self.outputUniverse, [40, 100, 101])
 
         """Generate rules"""
         self.rule1 = ctrl.Rule(
