@@ -23,15 +23,15 @@ class FuzzyCarController:
 
         self.centerDistance['close'] = fuzz.trapmf(self.inputUniverse, [0, 0, 75, 150])
         self.centerDistance['safe'] = fuzz.trimf(self.inputUniverse, [100, 175, 250])
-        self.centerDistance['far'] = fuzz.trapmf(self.inputUniverse, [150, 225, 600, 600])
+        self.centerDistance['far'] = fuzz.trapmf(self.inputUniverse, [175, 250, 600, 600])
 
         self.centerDistDiff['safe'] = fuzz.trapmf(self.differenceUniverse, [-600, -600, 0, 2])
-        self.centerDistDiff['sharp'] = fuzz.trapmf(self.differenceUniverse, [2, 500, 600, 600])
+        self.centerDistDiff['sharp'] = fuzz.trapmf(self.differenceUniverse, [0, 2, 600, 600])
 
         for antecedent in [self.leftDistance, self.rightDistance]:
             antecedent['close'] = fuzz.trapmf(self.inputUniverse, [0, 0, 50, 125])
-            antecedent['safe'] = fuzz.trimf(self.inputUniverse, [100, 135, 180])
-            antecedent['far'] = fuzz.trapmf(self.inputUniverse, [130, 200, 600, 600])
+            antecedent['safe'] = fuzz.trimf(self.inputUniverse, [100, 130, 200])
+            antecedent['far'] = fuzz.trapmf(self.inputUniverse, [150, 200, 600, 600])
 
         """Generate space for consequent; assuming binary outputs (like pressing a key)"""
         #self.outputUniverse = [-1, 0, 1]
@@ -44,7 +44,7 @@ class FuzzyCarController:
         self.speedControl['hard_brake'] = fuzz.trimf(self.outputUniverse, [-101, -100, -90])
         self.speedControl['brake'] = fuzz.trimf(self.outputUniverse, [-80, -50, -20])
         self.speedControl['do_nothing'] = fuzz.trimf(self.outputUniverse, [1, 5, 10])
-        self.speedControl['accelerate'] = fuzz.trimf(self.outputUniverse, [20, 30, 40])
+        self.speedControl['accelerate'] = fuzz.trimf(self.outputUniverse, [20, 25, 30])
         self.speedControl['full_ahead'] = fuzz.trimf(self.outputUniverse, [85, 100, 101])
         self.turn['sharp_left'] = fuzz.trimf(self.outputUniverse, [-101, -100, -90])
         self.turn['turn_left'] = fuzz.trimf(self.outputUniverse, [-80, -70, -60])

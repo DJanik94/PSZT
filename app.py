@@ -325,20 +325,20 @@ class Game:
 
         while (88 <= colour_a[0] <= 91 and 88 <= colour_a[1] <= 91 and 88 <= colour_a[2] <= 91
                and x_a < self.WINDOWWIDTH - 6 and y_a < self.WINDOWHEIGHT - 6 and x_a > 6 and y_a > 6):
-            x_a = x_a + 1 * math.cos(degree)
-            y_a = y_a + 1 * math.sin(degree)
+            x_a = x_a + 2 * math.cos(degree)
+            y_a = y_a + 2 * math.sin(degree)
             point_a = (int(x_a), int(y_a))
             colour_a = self.window_surfacee.get_at(point_a)
         while (88 <= colour_l[0] <= 91 and 91 >= colour_l[1] >= 88 <= colour_l[2] <= 91
                and x_l < self.WINDOWWIDTH - 6 and y_l < self.WINDOWHEIGHT - 6 and x_l > 6 and y_l > 6):
-            x_l = x_l + 1 * math.cos(degree - degree_d)
-            y_l = y_l + 1 * math.sin(degree - degree_d)
+            x_l = x_l + 2 * math.cos(degree - degree_d)
+            y_l = y_l + 2 * math.sin(degree - degree_d)
             point_l = (int(x_l), int(y_l))
             colour_l = self.window_surfacee.get_at(point_l)
         while (88 <= colour_r[0] <= 91 and 88 <= colour_r[1] <= 91 and 88 <= colour_r[2] <= 91
                and x_r < self.WINDOWWIDTH - 6 and y_r < self.WINDOWHEIGHT - 6 and x_r > 6 and y_r > 6):
-            x_r = x_r + 1 * math.cos(degree + degree_d)
-            y_r = y_r + 1 * math.sin(degree + degree_d)
+            x_r = x_r + 2 * math.cos(degree + degree_d)
+            y_r = y_r + 2 * math.sin(degree + degree_d)
             point_r = (int(x_r), int(y_r))
             colour_r = self.window_surfacee.get_at(point_r)
         pygame.draw.rect(self.window_surfacee, self.WHITE, (int(x_a), int(y_a), 5, 5), 1)
@@ -350,7 +350,7 @@ class Game:
         distanceLeft = math.sqrt((x_l - self.old_center[0]) ** 2 + (y_l - self.old_center[1]) ** 2) - 62
         textDistance = 'Distance ahead:' + str(distanceAhead)
         textDisplay = self.basicFont.render(textDistance, True, self.WHITE, )
-        self.window_surfacee.blit(textDisplay, (20, 20))
+        #self.window_surfacee.blit(textDisplay, (20, 20))
         print (round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2))
         return round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2)
 
