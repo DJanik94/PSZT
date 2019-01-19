@@ -6,7 +6,7 @@ import math
 import pygame
 from pygame.locals import *
 import controller
-import random
+import random as r
 
 # ----------------------------------------
 # Based on Grip by Stuart Laxton
@@ -57,7 +57,7 @@ class Game:
         self.boost = []
         self.auto_mode = False
         self.number_of_boxes = 120
-        self.box_positions = [(random.randint(-2500, 1200), random.randint(-2500, 1200)) for _ in range (self.number_of_boxes)]
+        self.box_positions = [(r.randint(-2500, 1200), r.randint(-2500, 1200)) for _ in range (self.number_of_boxes)]
 
         self.basicFont = pygame.font.Font("fonts/font_game.otf", 24)
 
@@ -87,10 +87,10 @@ class Game:
     def _init_game_settings(self):
         self.car_settings = [16,  # 0-Max Speed,
                              0,  # 1-Current Count
-                             12,  # 2-Acceleration rate
+                             10,  # 2-Acceleration rate
                              20,  # 3-Braking Rate
                              2,  # 4-Free Wheel
-                             60,  # 5-Gear Change
+                             80,  # 5-Gear Change
                              2,  # 6-Turn Speed
                              120,  # 7-Max Boost
                              1]     # 8 - Ratio Degree?
@@ -135,6 +135,8 @@ class Game:
         self.move_down = False
         self.move_left = False
         self.move_right = False
+        self._init_game_settings()
+
 
         while self.option[5] == 0:  # self.option [5] is the selection output bit
             # check for events
@@ -193,12 +195,6 @@ class Game:
                              (self.cursor[0], self.cursor[1], self.cursor[2], self.cursor[3]), 1)
 
             # draw the self.options onto the surface
-            """text1 = self.basicFont.render(self.option[1], True, self.WHITE, )
-            text2 = self.basicFont.render(self.option[2], True, self.WHITE, )
-            text3 = self.basicFont.render(self.option[3], True, self.WHITE, )
-            self.window_surfacee.blit(text1, (52, 202))
-            self.window_surfacee.blit(text2, (52, 252))
-            self.window_surfacee.blit(text3, (52, 302))"""
             text1 = self.basicFont.render(self.option[1], True, self.WHITE, )
             if (not self.auto_mode):
                 text2 = self.basicFont.render(self.option[2], True, self.WHITE, )
@@ -260,18 +256,6 @@ class Game:
         for point in self.box_positions:
             self.window_surfacee.blit(self.boxImage, (self.position[0] + point[0], self.position[1] + point[1]))
 
-        """self.window_surfacee.blit(self.boxImage, (self.position[0] - 120, self.position[1] - 20))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] - 45, self.position[1] - 300))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] - 10, self.position[1] - 200))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] - 500, self.position[1] - 500))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] + 300, self.position[1] + 100))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] + 350, self.position[1] + 100))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] + 120, self.position[1] + 200))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] - 465, self.position[1] + 300))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] - 360, self.position[1] - 120))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] - 1300, self.position[1] - 100))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] + 100, self.position[1] + 500))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] + 650, self.position[1] + 100))"""
 
     def drawBack(self):
         if self.position[2] >= 200:
@@ -324,27 +308,7 @@ class Game:
         self.window_surfacee.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 600))
 
     def getDistance(self, degree):
-        """x = self.old_center[0] + 62 * math.cos(
-            degree)  # car.png has 110x44px; we need to be outside of it, even when degree = 45
-        y = self.old_center[1] + 62 * math.sin(degree)  # dx, dy are taken form trigonometry
-        point_ahead = (int(x), int(y))
-        colour = self.window_surfacee.get_at(point_ahead)
-        while (colour[0] >= 88 and colour[0] <= 91 and colour[1] >= 88 and colour[1] <= 91 and colour[2] >= 88 and
-               colour[2] <= 91  # road colour = [89,89,89]
-               and x < self.WINDOWWIDTH - 6 and y < self.WINDOWHEIGHT - 6 and x > 6 and y > 6):
-            x = x + 5 * math.cos(
-                degree)  # cooridinates depend on the current angle, we check with the step 5px in both directions (x,y)
-            y = y + 5 * math.sin(degree)
-            point_ahead = (int(x), int(y))
-            colour = self.window_surfacee.get_at(point_ahead)
-        pygame.draw.rect(self.window_surfacee, self.WHITE, (int(x), int(y), 5, 5), 1)  # draw cursor
-        distance = math.sqrt((x - self.old_center[0]) ** 2 + (
-                y - self.old_center[1]) ** 2)  # from formula for distance in x,y coordinate system
-        text_distance = 'Distance ahead:' + str(distance)
-        text_display = self.basicFont.render(text_distance, True, self.WHITE, )
-        self.window_surfacee.blit(text_display, (20, 20))"""
-
-        degree_d = 22 * (3.142 / 180)
+        degree_d = 15 * (3.142 / 180)
         x_a = self.old_center[0] + 62 * math.cos(
             degree)  # car.png has 110x44px; we need to be outside of it, even when degree = 45
         y_a = self.old_center[1] + 62 * math.sin(degree)  # dx, dy are taken form trigonometry
@@ -359,25 +323,22 @@ class Game:
         colour_l = self.window_surfacee.get_at(point_l)
         colour_r = self.window_surfacee.get_at(point_r)
 
-        while (88 <= colour_a[0] <= 91 and 88 <= colour_a[1] <= 91 and colour_a[2] >= 88 and
-               colour_a[2] <= 91
+        while (88 <= colour_a[0] <= 91 and 88 <= colour_a[1] <= 91 and 88 <= colour_a[2] <= 91
                and x_a < self.WINDOWWIDTH - 6 and y_a < self.WINDOWHEIGHT - 6 and x_a > 6 and y_a > 6):
-            x_a = x_a + 5 * math.cos(degree)
-            y_a = y_a + 5 * math.sin(degree)
+            x_a = x_a + 1 * math.cos(degree)
+            y_a = y_a + 1 * math.sin(degree)
             point_a = (int(x_a), int(y_a))
             colour_a = self.window_surfacee.get_at(point_a)
-        while (colour_l[0] >= 88 and colour_l[0] <= 91 and colour_l[1] >= 88 and colour_l[1] <= 91 and colour_l[2] >= 88 and
-               colour_l[2] <= 91
+        while (88 <= colour_l[0] <= 91 and 91 >= colour_l[1] >= 88 <= colour_l[2] <= 91
                and x_l < self.WINDOWWIDTH - 6 and y_l < self.WINDOWHEIGHT - 6 and x_l > 6 and y_l > 6):
-            x_l = x_l + 5 * math.cos(degree - degree_d)
-            y_l = y_l + 5 * math.sin(degree - degree_d)
+            x_l = x_l + 1 * math.cos(degree - degree_d)
+            y_l = y_l + 1 * math.sin(degree - degree_d)
             point_l = (int(x_l), int(y_l))
             colour_l = self.window_surfacee.get_at(point_l)
-        while (colour_r[0] >= 88 and colour_r[0] <= 91 and colour_r[1] >= 88 and colour_r[1] <= 91 and colour_r[2] >= 88 and
-               colour_r[2] <= 91
+        while (88 <= colour_r[0] <= 91 and 88 <= colour_r[1] <= 91 and 88 <= colour_r[2] <= 91
                and x_r < self.WINDOWWIDTH - 6 and y_r < self.WINDOWHEIGHT - 6 and x_r > 6 and y_r > 6):
-            x_r = x_r + 5 * math.cos(degree + degree_d)
-            y_r = y_r + 5 * math.sin(degree + degree_d)
+            x_r = x_r + 1 * math.cos(degree + degree_d)
+            y_r = y_r + 1 * math.sin(degree + degree_d)
             point_r = (int(x_r), int(y_r))
             colour_r = self.window_surfacee.get_at(point_r)
         pygame.draw.rect(self.window_surfacee, self.WHITE, (int(x_a), int(y_a), 5, 5), 1)
@@ -385,12 +346,12 @@ class Game:
         pygame.draw.rect(self.window_surfacee, self.WHITE, (int(x_r), int(y_r), 5, 5), 1)
 
         distanceAhead = math.sqrt((x_a - self.old_center[0]) ** 2 + (y_a - self.old_center[1]) ** 2) - 62
-        distanceRight = math.sqrt((x_r - self.old_center[0]) ** 2 + (y_r - self.old_center[1]) ** 2) - 88
-        distanceLeft = math.sqrt((x_l - self.old_center[0]) ** 2 + (y_l - self.old_center[1]) ** 2) - 88
+        distanceRight = math.sqrt((x_r - self.old_center[0]) ** 2 + (y_r - self.old_center[1]) ** 2) - 62
+        distanceLeft = math.sqrt((x_l - self.old_center[0]) ** 2 + (y_l - self.old_center[1]) ** 2) - 62
         textDistance = 'Distance ahead:' + str(distanceAhead)
         textDisplay = self.basicFont.render(textDistance, True, self.WHITE, )
         self.window_surfacee.blit(textDisplay, (20, 20))
-        #print (round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2))
+        print (round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2))
         return round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2)
 
 
@@ -562,11 +523,11 @@ class Game:
             self.move_left = False
             self.move_right = False
         if (speedRatio > 0):
-            self.car_settings[2] = abs(speedRatio) * 0.12  # from 0 to 12
+            self.car_settings[2] = abs(speedRatio) * 0.1  # from 0 to 12
             self.move_up = True
             self.move_down = False
         if (speedRatio < 0):  # >
-            self.car_settings[3] = abs(speedRatio) * 0.2  # from 0 to 20
+            self.car_settings[3] = abs(speedRatio) * 1.2  # from 0 to 20  ->100
             self.move_up = False
             self.move_down = True
         if (speedRatio == 0):
