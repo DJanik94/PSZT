@@ -21,6 +21,7 @@ pygame.display.set_caption('PSZT')
 # set up the colors
 BLACK = (0, 0, 0)
 WHITE = (255,255,255)
+BROWN = (56,56,35)
 
 # set up variables
 moveLeft = False
@@ -28,7 +29,7 @@ moveRight = False
 moveUp = False
 moveDown = False
 MOVESPEED = 50
-carSettings = [16, 0, 12, 20, 2, 120, 2, 120, 1]# 0-Max Speed, 1-Current Count, 2-Acceleration rate, 3-Braking Rate, 4-Free Wheel, 5-Gear Change,6-Turn Speed,7-Max Boost, 8 - ratioDegree
+carSettings = [16, 0, 12, 20, 8, 120, 2, 120, 1]# 0-Max Speed, 1-Current Count, 2-Acceleration rate, 3-Braking Rate, 4-Free Wheel, 5-Gear Change,6-Turn Speed,7-Max Boost, 8 - ratioDegree
 movespeed = [0,0,2,0]#0-Current movespeed, 1-Max movespeed, 2-Rotation speed, 3-Turn Speed Multiply
 position = [650,250,0,0,0,0]# 0-1 Track position, 2-3 Background position, 4-5 Previous position
 rotRect = (110,44)
@@ -46,7 +47,7 @@ frontWheel = [0,0]
 rearWheel = [0,0]
 boost = []
 mode = True # true for player, false for auto-mode
-
+boxesList = [None]*5
 basicFont = pygame.font.Font("fonts/font_game.otf", 24)
 overheadImage = pygame.image.load('graphics/overhead_tile.png').convert_alpha()
 boxImage = pygame.image.load('graphics/woodenBox.png').convert_alpha()
@@ -219,8 +220,16 @@ def moveTrack():
     windowSurface.blit(boxImage, (position[0] - 10, position[1] - 200))
     windowSurface.blit(boxImage, (position[0] - 500, position[1] - 500))
     windowSurface.blit(boxImage, (position[0] + 300, position[1] + 100))
-    windowSurface.blit(boxImage, (position[0] + 800, position[1] + 100))
-
+    box0 = Rect(position[0] - 120, position[1] - 20, 50, 50)
+    box1 = Rect(position[0] - 45, position[1] - 300, 50, 50)
+    box2 = Rect(position[0] - 10, position[1] - 200, 50, 50)
+    box3 = Rect(position[0] - 500, position[1] - 500, 50, 50)
+    box4 = Rect(position[0] + 300, position[1] + 100, 50, 50)
+    boxesList[0] = box0
+    boxesList[1] = box1
+    boxesList[2] = box2
+    boxesList[3] = box3
+    boxesList[4] = box4
 
 def drawBack():
     if position[2] >= 200:
@@ -274,12 +283,12 @@ def drawBack():
 
 def getDistance(degree):
     degree45 = 45 * (3.142/180)
-    xA = oldCenter[0] + 62*math.cos(degree) # car.png has 110x44px; we need to be outside of it, even when degree = 45
-    yA = oldCenter[1] + 62*math.sin(degree) # dx, dy are taken form trigonometry
-    xL = oldCenter[0] + 62*math.cos(degree -degree45)
-    yL = oldCenter[1] + 62*math.sin(degree -degree45)
-    xR = oldCenter[0] + 62*math.cos(degree +degree45)
-    yR = oldCenter[1] + 62*math.sin(degree +degree45)
+    xA = oldCenter[0] + 60*math.cos(degree) # car.png has 110x44px; we need to be outside of it, even when degree = 45
+    yA = oldCenter[1] + 60*math.sin(degree) # dx, dy are taken form trigonometry
+    xL = oldCenter[0] + 60*math.cos(degree -degree45)
+    yL = oldCenter[1] + 60*math.sin(degree -degree45)
+    xR = oldCenter[0] + 60*math.cos(degree +degree45)
+    yR = oldCenter[1] + 60*math.sin(degree +degree45)
     pointA = (int(xA), int(yA))
     pointL = (int(xL), int(yL))
     pointR = (int(xR), int(yR))
@@ -320,9 +329,28 @@ def getDistance(degree):
 
     return distanceAhead, distanceLeft, distanceRight
 
+def collisionDetect(degree):
+    if (rotRect.collidelist(boxesList) != -1):
+        collidingBox = boxesList[rotRect.collidelist(boxesList)]
+        xA = oldCenter[0] + 44 * math.cos(degree)
+        yA = oldCenter[1] + 44 * math.sin(degree)
+        xB = oldCenter[0] - 44 * math.cos(degree)
+        yB = oldCenter[1] - 44 * math.sin(degree)
+        distanceAhead = math.sqrt((xA - collidingBox.center[0]) ** 2 + (yA - collidingBox.center[1]) ** 2)
+        distanceBackwards = math.sqrt((xB - collidingBox.center[0]) ** 2 + (yB - collidingBox.center[1]) ** 2)
+        pygame.draw.rect(windowSurface, WHITE, (int(xA), int(yA), 5, 5), 1) #for tests
+        pygame.draw.rect(windowSurface, WHITE, (int(xB), int(yB), 5, 5), 1)  # for tests
+        if(distanceAhead < 50 ):
+            carSettings[1] = -carSettings[1] #value from tests
+            movespeed[0] = -5
+
+        elif(distanceBackwards < 50 ):
+            carSettings[1] = -carSettings[1]  # value from tests
+            movespeed[0] = 5
+
 def rotation(image,where,degree):
     # Calculate rotated graphics & centre position
-    surf =  pygame.Surface((100,50))
+    surf =  pygame.Surface((88,44))
     rotatedImage = pygame.transform.rotate(image,degree)
     blittedRect = windowSurface.blit(surf, where)
     oldCenter = blittedRect.center
@@ -338,7 +366,8 @@ menu()
 while option[5]==1:
 
     where = playerSettings[0], playerSettings[1]
-    playerRotatedImage, rotRect, oldCenter = rotation(playerImage, where,degree)
+    playerRotatedImage, rotRect, oldCenter = rotation(playerImage, where, degree)
+
     if mode == True:
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -359,7 +388,9 @@ while option[5]==1:
                     moveDown = True
             if event.type == KEYUP:
                 if event.key == K_ESCAPE:
-                    moveUp = False
+                    carSettings = [16, 0, 12, 20, 2, 120, 2, 120, 1]
+                    playerSettings = [WINDOWWIDTH / 2 - 50, WINDOWHEIGHT / 2, 0, 0]
+                    degree = 0
                     movespeed = [0,0,2,0]
                     option[5]=0
                     menu()
@@ -372,12 +403,36 @@ while option[5]==1:
                 if event.key == K_DOWN:
                     moveDown = False
     else:
-        ahead, left, right = getDistance(moveRadians)
-        dirRatio, speedRatio = funkcjaDawida(ahead, left, right)
+        #ahead, left, right = getDistance(moveRadians)
+        #dirRatio, speedRatio = funkcjaDawida(ahead, left, right)
+        dirRatio = - 90
+        speedRatio = 100
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYUP:
+                if event.key == K_ESCAPE:
+                    carSettings = [16, 0, 12, 20, 2, 120, 2, 120, 1]
+                    playerSettings = [WINDOWWIDTH / 2 - 50, WINDOWHEIGHT / 2, 0, 0]
+                    movespeed = [0, 0, 2, 0]
+                    option[5] = 0
+                    menu()
+        if (speedRatio < 0):
+            carSettings[2] = abs(speedRatio)* 0.12 #from 0 to 12
+            moveUp = False
+            moveDown = True
+        if (speedRatio > 0):
+            carSettings[3] = abs(speedRatio)* 0.2 #from 0 to 20
+            moveDown = False
+            moveUp = True
+        if (speedRatio == 0):
+            moveUp = False
+            moveDown = False
         if (dirRatio < 0):
             carSettings[8] = (dirRatio + 110) * 0.01 # from 0.1 to 2.1
-            moveLeft = True
             moveRight = False
+            moveLeft = True
         if (dirRatio > 0):
             carSettings[8] = (dirRatio + 110) * 0.01
             moveLeft = False
@@ -385,17 +440,6 @@ while option[5]==1:
         if (dirRatio == 0):
             moveLeft = False
             moveRight = False
-        if (speedRatio < 0):
-            carSettings[2] = abs(speedRatio)* 0.12 #from 0 to 12
-            moveUp = True
-            moveDown = False
-        if (speedRatio > 0):
-            carSettings[3] = abs(speedRatio)* 0.2 #from 0 to 20
-            moveUp = False
-            moveDown = True
-        if (speedRatio == 0):
-            moveUp = False
-            moveDown = False
 
     # draw the track background onto the surface
     drawBack()
@@ -404,20 +448,24 @@ while option[5]==1:
     moveTrack()
 
     # Check the background colour
-    colour = windowSurface.get_at((oldCenter))# centre colour
+    colour = windowSurface.get_at(oldCenter)# centre colour
     if colour[0] >= 88 and colour[0] <= 91 or colour[0] == 165 or colour[0] == 255:
         1;
     else:
         movespeed[2] = 3
-        if movespeed[0] >4:
+        if movespeed[0] >4 :
             carSettings[1] -= carSettings[3]*2
+        elif movespeed[0] < -4 :
+            carSettings[1] += carSettings[3] * 2
 
     # draw the player onto the surface
     windowSurface.blit(playerRotatedImage,rotRect)
+    pygame.draw.rect(windowSurface, WHITE, rotRect, 1) #for tests
 
     # Calculate player direction rotation
     degree = -5 * playerSettings[2]
     moveRadians = radians = -degree * (3.142/180)
+
 
     position[0]-=(movespeed[0]*((math.cos(moveRadians))))
     position[1]-=(movespeed[0]*((math.sin(moveRadians))))
@@ -428,8 +476,9 @@ while option[5]==1:
     position[2]-=(movespeed[0]*((math.cos(moveRadians))))
     position[3]-=(movespeed[0]*((math.sin(moveRadians))))
 
+
     if moveLeft:    # Turn Left
-        if movespeed[0] > 0:
+        if movespeed[0] != 0:
             carSettings[6]-=1
             if carSettings[6]==0:
                 playerSettings[2] -= carSettings[8]
@@ -438,7 +487,7 @@ while option[5]==1:
                     playerSettings[2]=71
 
     if moveRight:
-        if movespeed[0] > 0:
+        if movespeed[0] != 0:
             carSettings[6]-=1
             if carSettings[6]==0:
                 playerSettings[2] += carSettings[8]
@@ -451,8 +500,11 @@ while option[5]==1:
         carSettings[1] -= carSettings[3]
     if moveUp:    # Accelerate
         carSettings[1] += carSettings[2]
-    else:
+    elif movespeed[0] >= 0:
         carSettings[1] -= carSettings[4]
+        movespeed[1] = carSettings[0]
+    elif movespeed[0] <0:
+        carSettings[1] += carSettings[4]
         movespeed[1] = carSettings[0]
 
     if carSettings[1] >= carSettings[5] and movespeed[0] < movespeed[1]:# Change up gear
@@ -460,16 +512,19 @@ while option[5]==1:
         carSettings[1] = 0
     elif carSettings[1] >= carSettings[5] and movespeed[0] >= movespeed[1]:# Accelerate Limiter
         carSettings[1] = carSettings[5]
-    elif carSettings[1] < 0 and movespeed[0] == 0: # Braking limiter
-        carSettings[1]=0
-        movespeed[0]=0
+    elif carSettings[1] < 0 and movespeed[0] == -carSettings[0] and moveDown: #moveBackwards
+        carSettings[1] = -carSettings[1]
+    elif carSettings[1] < 0 and movespeed[0] <=0  and moveDown == False: # Braking limiter
+        carSettings[1] = 0
+        movespeed[0] = 0
     elif carSettings[1] <0:# Change down gears
         movespeed[0] -=1
         carSettings[1]=carSettings[5]
     if movespeed[0] > movespeed[1]:
         carSettings[1] -= carSettings[3]
 
+    collisionDetect(moveRadians)
+
     # draw the window onto the screen
     framerate()
-    ahaed, left, right = getDistance(moveRadians)
     pygame.display.update()
