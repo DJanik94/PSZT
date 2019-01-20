@@ -349,7 +349,7 @@ class Game:
         distanceAhead = math.sqrt((x_a - self.old_center[0]) ** 2 + (y_a - self.old_center[1]) ** 2) - 62
         distanceRight = math.sqrt((x_r - self.old_center[0]) ** 2 + (y_r - self.old_center[1]) ** 2) - 62
         distanceLeft = math.sqrt((x_l - self.old_center[0]) ** 2 + (y_l - self.old_center[1]) ** 2) - 62
-        textDistance = 'Distance ahead:' + str(distanceAhead)
+        #textDistance = 'Distance ahead:' + str(distanceAhead)
         #print (round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2))
         return round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2)
 
@@ -366,11 +366,11 @@ class Game:
             pygame.draw.rect(self.window_surfacee, self.WHITE, (int(xB), int(yB), 5, 5), 1)  # for tests
             if distance_ahead < 50:
                 self.car_settings[1] = -self.car_settings[1]  # value from tests
-                self.move_speed[0] = -0.5
+                self.move_speed[0] = -1
 
             elif distance_backwards < 50:
                 self.car_settings[1] = -self.car_settings[1]  # value from tests
-                self.move_speed[0] = 0.5
+                self.move_speed[0] = 1
 
 
     def rotation(self, image, where, degree):
@@ -469,7 +469,7 @@ class Game:
                 self.car_settings[1] = 0
             elif self.car_settings[1] >= self.car_settings[5] and self.move_speed[0] >= self.move_speed[1]:  # Accelerate Limiter
                 self.car_settings[1] = self.car_settings[5]
-            elif self.car_settings[1] < 0 and self.move_speed[0] == -self.car_settings[0] and self.move_down:  # moveBackwards
+            elif self.car_settings[1] < 0 and self.move_speed[0] == -2 and self.move_down:  # moveBackwards prev: -self.car_settings[0]
                 self.car_settings[1] = -self.car_settings[1]
             elif self.car_settings[1] < 0 and self.move_speed[0] <= 0 and self.move_down == False:  # Braking limiter
                 self.car_settings[1] = 0
