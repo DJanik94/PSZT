@@ -89,7 +89,7 @@ class Game:
                              10,  # 2-Acceleration rate
                              80,  # 3-Braking Rate
                              2,  # 4-Free Wheel
-                             100,  # 5-Gear Change
+                             80,  # 5-Gear Change
                              2,  # 6-Turn Speed
                              120,  # 7-Max Boost
                              1]     # 8 - Ratio Degree?
@@ -366,11 +366,11 @@ class Game:
             pygame.draw.rect(self.window_surfacee, self.WHITE, (int(xB), int(yB), 5, 5), 1)  # for tests
             if distance_ahead < 50:
                 self.car_settings[1] = -self.car_settings[1]  # value from tests
-                self.move_speed[0] = -5
+                self.move_speed[0] = -0.5
 
             elif distance_backwards < 50:
                 self.car_settings[1] = -self.car_settings[1]  # value from tests
-                self.move_speed[0] = 5
+                self.move_speed[0] = 0.5
 
 
     def rotation(self, image, where, degree):
@@ -415,6 +415,8 @@ class Game:
                 self.move_speed[2] = 3
                 if self.move_speed[0] > 4:
                     self.car_settings[1] -= self.car_settings[3] * 2
+                elif self.move_speed[0] < -4:
+                    self.car_settings[1] += self.car_settings[3] * 2
 
             # draw the player onto the surface
             self.window_surfacee.blit(self.playerrotated_image, self.rot_rect)
