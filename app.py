@@ -56,7 +56,8 @@ class Game:
         self.rear_wheel = [0, 0]
         self.boost = []
         self.auto_mode = False
-        self.number_of_boxes = 20
+        self.number_of_boxes = 100
+        self.boxes_list = None
         self.box_positions = [(r.randint(-2500, 1200), r.randint(-2500, 1200)) for _ in range(self.number_of_boxes)]
 
         self.boxes_list = None
@@ -88,7 +89,7 @@ class Game:
                              10,  # 2-Acceleration rate
                              80,  # 3-Braking Rate
                              2,  # 4-Free Wheel
-                             80,  # 5-Gear Change
+                             100,  # 5-Gear Change
                              2,  # 6-Turn Speed
                              120,  # 7-Max Boost
                              1]     # 8 - Ratio Degree?
@@ -252,30 +253,10 @@ class Game:
         self.window_surfacee.blit(self.trackImage14, (self.position[0] - 1700, self.position[1] - 1200))
         self.window_surfacee.blit(self.trackImage24, (self.position[0] - 1700, self.position[1] - 500))
 
-        #for point in self.box_positions:
-            #self.window_surfacee.blit(self.boxImage, (self.position[0] + point[0], self.position[1] + point[1]))
-
-        self.boxes_list = [None]*5
-        self.window_surfacee.blit(self.boxImage, (self.position[0] - 120, self.position[1] - 20))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] - 45, self.position[1] - 300))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] - 10, self.position[1] - 200))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] - 500, self.position[1] - 500))
-        self.window_surfacee.blit(self.boxImage, (self.position[0] + 300, self.position[1] + 100))
-        box0 = Rect(self.position[0] - 120, self.position[1] - 20, 50, 50)
-        box1 = Rect(self.position[0] - 45, self.position[1] - 300, 50, 50)
-        box2 = Rect(self.position[0] - 10, self.position[1] - 200, 50, 50)
-        box3 = Rect(self.position[0] - 500, self.position[1] - 500, 50, 50)
-        box4 = Rect(self.position[0] + 300, self.position[1] + 100, 50, 50)
-        self.boxes_list[0] = box0
-        self.boxes_list[1] = box1
-        self.boxes_list[2] = box2
-        self.boxes_list[3] = box3
-        self.boxes_list[4] = box4
-
-        """self.boxes_list = [Rect(self.position[0] + position[0], self.position[1] + position[1], 50, 50) for position in self.box_positions]
+        self.boxes_list = [Rect(self.position[0] + position[0], self.position[1] + position[1], 50, 50) for position in self.box_positions]
 
         for point in self.box_positions:
-            self.window_surfacee.blit(self.boxImage, (self.position[0] + point[0], self.position[1] + point[1]))"""
+            self.window_surfacee.blit(self.boxImage, (self.position[0] + point[0], self.position[1] + point[1]))
 
     def drawBack(self):
         if self.position[2] >= 200:
@@ -369,8 +350,6 @@ class Game:
         distanceRight = math.sqrt((x_r - self.old_center[0]) ** 2 + (y_r - self.old_center[1]) ** 2) - 62
         distanceLeft = math.sqrt((x_l - self.old_center[0]) ** 2 + (y_l - self.old_center[1]) ** 2) - 62
         textDistance = 'Distance ahead:' + str(distanceAhead)
-        textDisplay = self.basicFont.render(textDistance, True, self.WHITE, )
-        #self.window_surfacee.blit(textDisplay, (20, 20))
         #print (round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2))
         return round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2)
 
@@ -381,15 +360,15 @@ class Game:
             yA = self.old_center[1] + 44 * math.sin(degree)
             xB = self.old_center[0] - 44 * math.cos(degree)
             yB = self.old_center[1] - 44 * math.sin(degree)
-            distanceAhead = math.sqrt((xA - colliding_box.center[0]) ** 2 + (yA - colliding_box.center[1]) ** 2)
-            distanceBackwards = math.sqrt((xB - colliding_box.center[0]) ** 2 + (yB - colliding_box.center[1]) ** 2)
+            distance_ahead = math.sqrt((xA - colliding_box.center[0]) ** 2 + (yA - colliding_box.center[1]) ** 2)
+            distance_backwards = math.sqrt((xB - colliding_box.center[0]) ** 2 + (yB - colliding_box.center[1]) ** 2)
             pygame.draw.rect(self.window_surfacee, self.WHITE, (int(xA), int(yA), 5, 5), 1)  # for tests
             pygame.draw.rect(self.window_surfacee, self.WHITE, (int(xB), int(yB), 5, 5), 1)  # for tests
-            if (distanceAhead < 50):
+            if distance_ahead < 50:
                 self.car_settings[1] = -self.car_settings[1]  # value from tests
                 self.move_speed[0] = -5
 
-            elif (distanceBackwards < 50):
+            elif distance_backwards < 50:
                 self.car_settings[1] = -self.car_settings[1]  # value from tests
                 self.move_speed[0] = 5
 
@@ -471,33 +450,33 @@ class Game:
                         if self.player_settings[2] > 71:
                             self.player_settings[2] = 0
 
-                # move the player
-                if self.move_down:  # Braking
-                    self.car_settings[1] -= self.car_settings[3]
-                if self.move_up:  # Accelerate
-                    self.car_settings[1] += self.car_settings[2]
-                elif self.move_speed[0] >= 0:
-                    self.car_settings[1] -= self.car_settings[4]
-                    self.move_speed[1] = self.car_settings[0]
-                elif self.move_speed[0] < 0:
-                    self.car_settings[1] += self.car_settings[4]
-                    self.move_speed[1] = self.car_settings[0]
+            # move the player
+            if self.move_down:  # Braking
+                self.car_settings[1] -= self.car_settings[3]
+            if self.move_up:  # Accelerate
+                self.car_settings[1] += self.car_settings[2]
+            elif self.move_speed[0] >= 0:
+                self.car_settings[1] -= self.car_settings[4]
+                self.move_speed[1] = self.car_settings[0]
+            elif self.move_speed[0] < 0:
+                self.car_settings[1] += self.car_settings[4]
+                self.move_speed[1] = self.car_settings[0]
 
-                if self.car_settings[1] >= self.car_settings[5] and self.move_speed[0] < self.move_speed[1]:  # Change up gear
-                    self.move_speed[0] += 1
-                    self.car_settings[1] = 0
-                elif self.car_settings[1] >= self.car_settings[5] and self.move_speed[0] >= self.move_speed[1]:  # Accelerate Limiter
-                    self.car_settings[1] = self.car_settings[5]
-                elif self.car_settings[1] < 0 and self.move_speed[0] == -self.car_settings[0] and self.move_down:  # moveBackwards
-                    self.car_settings[1] = -self.car_settings[1]
-                elif self.car_settings[1] < 0 and self.move_speed[0] <= 0 and self.move_down == False:  # Braking limiter
-                    self.car_settings[1] = 0
-                    self.move_speed[0] = 0
-                elif self.car_settings[1] < 0:  # Change down gears
-                    self.move_speed[0] -= 1
-                    self.car_settings[1] = self.car_settings[5]
-                if self.move_speed[0] > self.move_speed[1]:
-                    self.car_settings[1] -= self.car_settings[3]
+            if self.car_settings[1] >= self.car_settings[5] and self.move_speed[0] < self.move_speed[1]:  # Change up gear
+                self.move_speed[0] += 1
+                self.car_settings[1] = 0
+            elif self.car_settings[1] >= self.car_settings[5] and self.move_speed[0] >= self.move_speed[1]:  # Accelerate Limiter
+                self.car_settings[1] = self.car_settings[5]
+            elif self.car_settings[1] < 0 and self.move_speed[0] == -self.car_settings[0] and self.move_down:  # moveBackwards
+                self.car_settings[1] = -self.car_settings[1]
+            elif self.car_settings[1] < 0 and self.move_speed[0] <= 0 and self.move_down == False:  # Braking limiter
+                self.car_settings[1] = 0
+                self.move_speed[0] = 0
+            elif self.car_settings[1] < 0:  # Change down gears
+                self.move_speed[0] -= 1
+                self.car_settings[1] = self.car_settings[5]
+            if self.move_speed[0] > self.move_speed[1]:
+                self.car_settings[1] -= self.car_settings[3]
 
             self.collisionDetect(self.move_radians)
             # draw the window onto the screen
