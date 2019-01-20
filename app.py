@@ -86,7 +86,7 @@ class Game:
         self.car_settings = [16,  # 0-Max Speed,
                              0,  # 1-Current Count
                              10,  # 2-Acceleration rate
-                             20,  # 3-Braking Rate
+                             80,  # 3-Braking Rate
                              2,  # 4-Free Wheel
                              80,  # 5-Gear Change
                              2,  # 6-Turn Speed
@@ -136,7 +136,6 @@ class Game:
         self.move_left = False
         self.move_right = False
         self._init_game_settings()
-
 
         while self.option[5] == 0:  # self.option [5] is the selection output bit
             # check for events
@@ -196,7 +195,7 @@ class Game:
 
             # draw the self.options onto the surface
             text1 = self.basicFont.render(self.option[1], True, self.WHITE, )
-            if (not self.auto_mode):
+            if not self.auto_mode:
                 text2 = self.basicFont.render(self.option[2], True, self.WHITE, )
             else:
                 text2 = self.basicFont.render(self.option[3], True, self.WHITE, )
@@ -372,7 +371,7 @@ class Game:
         textDistance = 'Distance ahead:' + str(distanceAhead)
         textDisplay = self.basicFont.render(textDistance, True, self.WHITE, )
         #self.window_surfacee.blit(textDisplay, (20, 20))
-        print (round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2))
+        #print (round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2))
         return round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2)
 
     def collisionDetect(self, degree):
@@ -455,7 +454,7 @@ class Game:
             self.position[3] -= (self.move_speed[0] * ((math.sin(self.move_radians))))
 
             if self.move_left:  # Turn Left
-                if self.move_speed[0] > 0:
+                if self.move_speed[0] != 0:
                     self.car_settings[6] -= 1
                     if self.car_settings[6] == 0:
                         self.player_settings[2] -= self.car_settings[8]
@@ -464,7 +463,7 @@ class Game:
                             self.player_settings[2] = 71
 
             if self.move_right:
-                if self.move_speed[0] > 0:
+                if self.move_speed[0] != 0:
                     self.car_settings[6] -= 1
                     if self.car_settings[6] == 0:
                         self.player_settings[2] += self.car_settings[8]
@@ -472,28 +471,33 @@ class Game:
                         if self.player_settings[2] > 71:
                             self.player_settings[2] = 0
 
-            # move the player
-            if self.move_down:  # Braking
-                self.car_settings[1] -= self.car_settings[3]
-            if self.move_up:  # Accelerate
-                self.car_settings[1] += self.car_settings[2]
-            else:
-                self.car_settings[1] -= self.car_settings[4]
-                self.move_speed[1] = self.car_settings[0]
+                # move the player
+                if self.move_down:  # Braking
+                    self.car_settings[1] -= self.car_settings[3]
+                if self.move_up:  # Accelerate
+                    self.car_settings[1] += self.car_settings[2]
+                elif self.move_speed[0] >= 0:
+                    self.car_settings[1] -= self.car_settings[4]
+                    self.move_speed[1] = self.car_settings[0]
+                elif self.move_speed[0] < 0:
+                    self.car_settings[1] += self.car_settings[4]
+                    self.move_speed[1] = self.car_settings[0]
 
-            if self.car_settings[1] >= self.car_settings[5] and self.move_speed[0] < self.move_speed[1]:  # Change up gear
-                self.move_speed[0] += 1
-                self.car_settings[1] = 0
-            elif self.car_settings[1] >= self.car_settings[5] and self.move_speed[0] >= self.move_speed[1]:  # Accelerate Limiter
-                self.car_settings[1] = self.car_settings[5]
-            elif self.car_settings[1] < 0 and self.move_speed[0] == 0:  # Braking limiter
-                self.car_settings[1] = 0
-                self.move_speed[0] = 0
-            elif self.car_settings[1] < 0:  # Change down gears
-                self.move_speed[0] -= 1
-                self.car_settings[1] = self.car_settings[5]
-            if self.move_speed[0] > self.move_speed[1]:
-                self.car_settings[1] -= self.car_settings[3]
+                if self.car_settings[1] >= self.car_settings[5] and self.move_speed[0] < self.move_speed[1]:  # Change up gear
+                    self.move_speed[0] += 1
+                    self.car_settings[1] = 0
+                elif self.car_settings[1] >= self.car_settings[5] and self.move_speed[0] >= self.move_speed[1]:  # Accelerate Limiter
+                    self.car_settings[1] = self.car_settings[5]
+                elif self.car_settings[1] < 0 and self.move_speed[0] == -self.car_settings[0] and self.move_down:  # moveBackwards
+                    self.car_settings[1] = -self.car_settings[1]
+                elif self.car_settings[1] < 0 and self.move_speed[0] <= 0 and self.move_down == False:  # Braking limiter
+                    self.car_settings[1] = 0
+                    self.move_speed[0] = 0
+                elif self.car_settings[1] < 0:  # Change down gears
+                    self.move_speed[0] -= 1
+                    self.car_settings[1] = self.car_settings[5]
+                if self.move_speed[0] > self.move_speed[1]:
+                    self.car_settings[1] -= self.car_settings[3]
 
             self.collisionDetect(self.move_radians)
             # draw the window onto the screen
