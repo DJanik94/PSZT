@@ -28,7 +28,7 @@ class Game:
         # set up the window
         self.WINDOWWIDTH = 1200
         self.WINDOWHEIGHT = 600
-        self.window_surfacee = pygame.display.set_mode((self.WINDOWWIDTH, self.WINDOWHEIGHT), 0, 32)
+        self.window_surface = pygame.display.set_mode((self.WINDOWWIDTH, self.WINDOWHEIGHT), 0, 32)
         pygame.display.set_caption('PSZT Game Project')
         self.player_settings = []
 
@@ -200,9 +200,9 @@ class Game:
                 text2 = self.basicFont.render(self.option[3], True, self.WHITE, )
 
             text3 = self.basicFont.render(self.option[4], True, self.WHITE, )
-            self.window_surfacee.blit(text1, (52, 202))
-            self.window_surfacee.blit(text2, (52, 252))
-            self.window_surfacee.blit(text3, (52, 302))
+            self.window_surface.blit(text1, (52, 202))
+            self.window_surface.blit(text2, (52, 252))
+            self.window_surface.blit(text3, (52, 302))
 
             self.frame_rate()
             # draw the window onto the screen
@@ -214,47 +214,47 @@ class Game:
 
     def move_track(self):
 
-        self.window_surfacee.blit(self.trackImage62, (self.position[0] - 1000, self.position[1] - 115))
-        self.window_surfacee.blit(self.trackImage6, (self.position[0] - 700, self.position[1] - 100))
-        self.window_surfacee.blit(self.trackImage6, (self.position[0] - 400, self.position[1] - 100))
-        self.window_surfacee.blit(self.trackImage6, (self.position[0] - 100, self.position[1] - 100))
-        self.window_surfacee.blit(self.trackImage6, (self.position[0], self.position[1] - 100))
-        self.window_surfacee.blit(self.trackImage64, (self.position[0] + 300, self.position[1] - 100))
-        self.window_surfacee.blit(self.trackImage41, (self.position[0] + 600, self.position[1] - 100))
-        self.window_surfacee.blit(self.trackImage31, (self.position[0] + 600, self.position[1] + 300))
-        self.window_surfacee.blit(self.trackImage63, (self.position[0] + 300, self.position[1] + 385))
-        self.window_surfacee.blit(self.trackImage6, (self.position[0], self.position[1] + 400))
-        self.window_surfacee.blit(self.trackImage6, (self.position[0] - 300, self.position[1] + 400))
-        self.window_surfacee.blit(self.trackImage61, (self.position[0] - 600, self.position[1] + 400))
-        self.window_surfacee.blit(self.trackImage12, (self.position[0] - 1100, self.position[1] + 400))
-        self.window_surfacee.blit(self.trackImage22, (self.position[0] - 1100, self.position[1] + 900))
-        self.window_surfacee.blit(self.trackImage62, (self.position[0] - 600, self.position[1] + 1085))
-        self.window_surfacee.blit(self.trackImage6, (self.position[0] - 300, self.position[1] + 1100))
-        self.window_surfacee.blit(self.trackImage6, (self.position[0], self.position[1] + 1100))
-        self.window_surfacee.blit(self.trackImage6, (self.position[0] + 300, self.position[1] + 1100))
-        self.window_surfacee.blit(self.trackImage6, (self.position[0] + 600, self.position[1] + 1100))
-        self.window_surfacee.blit(self.trackImage63, (self.position[0] + 900, self.position[1] + 1085))
-        self.window_surfacee.blit(self.trackImage34, (self.position[0] + 1200, self.position[1] + 700))
-        self.window_surfacee.blit(self.trackImage53, (self.position[0] + 1585, self.position[1] + 400))
-        self.window_surfacee.blit(self.trackImage54, (self.position[0] + 1585, self.position[1] + 100))
-        self.window_surfacee.blit(self.trackImage41, (self.position[0] + 1500, self.position[1] - 300))
-        self.window_surfacee.blit(self.trackImage21, (self.position[0] + 1100, self.position[1] - 400))
-        self.window_surfacee.blit(self.trackImage44, (self.position[0] + 700, self.position[1] - 1100))
-        self.window_surfacee.blit(self.trackImage11, (self.position[0] + 300, self.position[1] - 1100))
-        self.window_surfacee.blit(self.trackImage31, (self.position[0] + 200, self.position[1] - 700))
-        self.window_surfacee.blit(self.trackImage63, (self.position[0] - 100, self.position[1] - 615))
-        self.window_surfacee.blit(self.trackImage62, (self.position[0] - 100, self.position[1] - 615))
-        self.window_surfacee.blit(self.trackImage22, (self.position[0] - 600, self.position[1] - 800))
-        self.window_surfacee.blit(self.trackImage41, (self.position[0] - 700, self.position[1] - 1200))
-        self.window_surfacee.blit(self.trackImage64, (self.position[0] - 1000, self.position[1] - 1200))
-        self.window_surfacee.blit(self.trackImage61, (self.position[0] - 1000, self.position[1] - 1200))
-        self.window_surfacee.blit(self.trackImage14, (self.position[0] - 1700, self.position[1] - 1200))
-        self.window_surfacee.blit(self.trackImage24, (self.position[0] - 1700, self.position[1] - 500))
+        self.window_surface.blit(self.trackImage62, (self.position[0] - 1000, self.position[1] - 115))
+        self.window_surface.blit(self.trackImage6, (self.position[0] - 700, self.position[1] - 100))
+        self.window_surface.blit(self.trackImage6, (self.position[0] - 400, self.position[1] - 100))
+        self.window_surface.blit(self.trackImage6, (self.position[0] - 100, self.position[1] - 100))
+        self.window_surface.blit(self.trackImage6, (self.position[0], self.position[1] - 100))
+        self.window_surface.blit(self.trackImage64, (self.position[0] + 300, self.position[1] - 100))
+        self.window_surface.blit(self.trackImage41, (self.position[0] + 600, self.position[1] - 100))
+        self.window_surface.blit(self.trackImage31, (self.position[0] + 600, self.position[1] + 300))
+        self.window_surface.blit(self.trackImage63, (self.position[0] + 300, self.position[1] + 385))
+        self.window_surface.blit(self.trackImage6, (self.position[0], self.position[1] + 400))
+        self.window_surface.blit(self.trackImage6, (self.position[0] - 300, self.position[1] + 400))
+        self.window_surface.blit(self.trackImage61, (self.position[0] - 600, self.position[1] + 400))
+        self.window_surface.blit(self.trackImage12, (self.position[0] - 1100, self.position[1] + 400))
+        self.window_surface.blit(self.trackImage22, (self.position[0] - 1100, self.position[1] + 900))
+        self.window_surface.blit(self.trackImage62, (self.position[0] - 600, self.position[1] + 1085))
+        self.window_surface.blit(self.trackImage6, (self.position[0] - 300, self.position[1] + 1100))
+        self.window_surface.blit(self.trackImage6, (self.position[0], self.position[1] + 1100))
+        self.window_surface.blit(self.trackImage6, (self.position[0] + 300, self.position[1] + 1100))
+        self.window_surface.blit(self.trackImage6, (self.position[0] + 600, self.position[1] + 1100))
+        self.window_surface.blit(self.trackImage63, (self.position[0] + 900, self.position[1] + 1085))
+        self.window_surface.blit(self.trackImage34, (self.position[0] + 1200, self.position[1] + 700))
+        self.window_surface.blit(self.trackImage53, (self.position[0] + 1585, self.position[1] + 400))
+        self.window_surface.blit(self.trackImage54, (self.position[0] + 1585, self.position[1] + 100))
+        self.window_surface.blit(self.trackImage41, (self.position[0] + 1500, self.position[1] - 300))
+        self.window_surface.blit(self.trackImage21, (self.position[0] + 1100, self.position[1] - 400))
+        self.window_surface.blit(self.trackImage44, (self.position[0] + 700, self.position[1] - 1100))
+        self.window_surface.blit(self.trackImage11, (self.position[0] + 300, self.position[1] - 1100))
+        self.window_surface.blit(self.trackImage31, (self.position[0] + 200, self.position[1] - 700))
+        self.window_surface.blit(self.trackImage63, (self.position[0] - 100, self.position[1] - 615))
+        self.window_surface.blit(self.trackImage62, (self.position[0] - 100, self.position[1] - 615))
+        self.window_surface.blit(self.trackImage22, (self.position[0] - 600, self.position[1] - 800))
+        self.window_surface.blit(self.trackImage41, (self.position[0] - 700, self.position[1] - 1200))
+        self.window_surface.blit(self.trackImage64, (self.position[0] - 1000, self.position[1] - 1200))
+        self.window_surface.blit(self.trackImage61, (self.position[0] - 1000, self.position[1] - 1200))
+        self.window_surface.blit(self.trackImage14, (self.position[0] - 1700, self.position[1] - 1200))
+        self.window_surface.blit(self.trackImage24, (self.position[0] - 1700, self.position[1] - 500))
 
         self.boxes_list = [Rect(self.position[0] + position[0], self.position[1] + position[1], 50, 50) for position in self.box_positions]
 
         for point in self.box_positions:
-            self.window_surfacee.blit(self.boxImage, (self.position[0] + point[0], self.position[1] + point[1]))
+            self.window_surface.blit(self.boxImage, (self.position[0] + point[0], self.position[1] + point[1]))
 
     def drawBack(self):
         if self.position[2] >= 200:
@@ -265,46 +265,46 @@ class Game:
             self.position[3] -= 200
         if self.position[3] <= -200:
             self.position[3] += 200
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] - 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] - 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 800, self.position[3] - 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 600, self.position[3] - 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 400, self.position[3] - 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 200, self.position[3] - 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2], self.position[3] - 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] - 200, self.position[3] - 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 1200, self.position[3]))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 1000, self.position[3]))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 800, self.position[3]))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 600, self.position[3]))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 400, self.position[3]))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 200, self.position[3]))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2], self.position[3]))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] - 200, self.position[3]))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] + 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] + 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 800, self.position[3] + 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 600, self.position[3] + 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 400, self.position[3] + 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 200, self.position[3] + 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2], self.position[3] + 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 200))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] + 400))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] + 400))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 800, self.position[3] + 400))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 600, self.position[3] + 400))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 400, self.position[3] + 400))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 200, self.position[3] + 400))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2], self.position[3] + 400))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 400))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] + 600))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] + 600))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 800, self.position[3] + 600))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 600, self.position[3] + 600))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 400, self.position[3] + 600))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] + 200, self.position[3] + 600))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2], self.position[3] + 600))
-        self.window_surfacee.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 800, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 600, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 400, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 200, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2], self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] - 200, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1200, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1000, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 800, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 600, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 400, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 200, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2], self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] - 200, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 800, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 600, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 400, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 200, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2], self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 800, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 600, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 400, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 200, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2], self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 800, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 600, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 400, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 200, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2], self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 600))
 
     def getDistance(self, degree):
         degree_d = 17 * (3.142 / 180)
@@ -318,31 +318,31 @@ class Game:
         point_a = (int(x_a), int(y_a))
         point_l = (int(x_l), int(y_l))
         point_r = (int(x_r), int(y_r))
-        colour_a = self.window_surfacee.get_at(point_a)
-        colour_l = self.window_surfacee.get_at(point_l)
-        colour_r = self.window_surfacee.get_at(point_r)
+        colour_a = self.window_surface.get_at(point_a)
+        colour_l = self.window_surface.get_at(point_l)
+        colour_r = self.window_surface.get_at(point_r)
 
         while (88 <= colour_a[0] <= 91 and 88 <= colour_a[1] <= 91 and 88 <= colour_a[2] <= 91
                and x_a < self.WINDOWWIDTH - 6 and y_a < self.WINDOWHEIGHT - 6 and x_a > 6 and y_a > 6):
             x_a = x_a + 2 * math.cos(degree)
             y_a = y_a + 2 * math.sin(degree)
             point_a = (int(x_a), int(y_a))
-            colour_a = self.window_surfacee.get_at(point_a)
+            colour_a = self.window_surface.get_at(point_a)
         while (88 <= colour_l[0] <= 91 and 91 >= colour_l[1] >= 88 <= colour_l[2] <= 91
                and x_l < self.WINDOWWIDTH - 6 and y_l < self.WINDOWHEIGHT - 6 and x_l > 6 and y_l > 6):
             x_l = x_l + 2 * math.cos(degree - degree_d)
             y_l = y_l + 2 * math.sin(degree - degree_d)
             point_l = (int(x_l), int(y_l))
-            colour_l = self.window_surfacee.get_at(point_l)
+            colour_l = self.window_surface.get_at(point_l)
         while (88 <= colour_r[0] <= 91 and 88 <= colour_r[1] <= 91 and 88 <= colour_r[2] <= 91
                and x_r < self.WINDOWWIDTH - 6 and y_r < self.WINDOWHEIGHT - 6 and x_r > 6 and y_r > 6):
             x_r = x_r + 2 * math.cos(degree + degree_d)
             y_r = y_r + 2 * math.sin(degree + degree_d)
             point_r = (int(x_r), int(y_r))
-            colour_r = self.window_surfacee.get_at(point_r)
-        pygame.draw.rect(self.window_surfacee, self.WHITE, (int(x_a), int(y_a), 5, 5), 1)
-        pygame.draw.rect(self.window_surfacee, self.WHITE, (int(x_l), int(y_l), 5, 5), 1)
-        pygame.draw.rect(self.window_surfacee, self.WHITE, (int(x_r), int(y_r), 5, 5), 1)
+            colour_r = self.window_surface.get_at(point_r)
+        pygame.draw.rect(self.window_surface, self.WHITE, (int(x_a), int(y_a), 5, 5), 1)
+        pygame.draw.rect(self.window_surface, self.WHITE, (int(x_l), int(y_l), 5, 5), 1)
+        pygame.draw.rect(self.window_surface, self.WHITE, (int(x_r), int(y_r), 5, 5), 1)
 
         distanceAhead = math.sqrt((x_a - self.old_center[0]) ** 2 + (y_a - self.old_center[1]) ** 2) - 62
         distanceRight = math.sqrt((x_r - self.old_center[0]) ** 2 + (y_r - self.old_center[1]) ** 2) - 62
@@ -360,8 +360,8 @@ class Game:
             yB = self.old_center[1] - 44 * math.sin(degree)
             distance_ahead = math.sqrt((xA - colliding_box.center[0]) ** 2 + (yA - colliding_box.center[1]) ** 2)
             distance_backwards = math.sqrt((xB - colliding_box.center[0]) ** 2 + (yB - colliding_box.center[1]) ** 2)
-            pygame.draw.rect(self.window_surfacee, self.WHITE, (int(xA), int(yA), 5, 5), 1)  # for tests
-            pygame.draw.rect(self.window_surfacee, self.WHITE, (int(xB), int(yB), 5, 5), 1)  # for tests
+            pygame.draw.rect(self.window_surface, self.WHITE, (int(xA), int(yA), 5, 5), 1)  # for tests
+            pygame.draw.rect(self.window_surface, self.WHITE, (int(xB), int(yB), 5, 5), 1)  # for tests
             if distance_ahead < 50:
                 self.car_settings[1] = -self.car_settings[1]  # value from tests
                 self.move_speed[0] = -1
@@ -417,7 +417,7 @@ class Game:
                     self.car_settings[1] += self.car_settings[3] * 2
 
             # draw the player onto the surface
-            self.window_surfacee.blit(self.playerrotated_image, self.rot_rect)
+            self.window_surface.blit(self.playerrotated_image, self.rot_rect)
 
             # Calculate player direction rotation
             self.degree = -5 * self.player_settings[2]
