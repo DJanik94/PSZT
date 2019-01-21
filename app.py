@@ -56,7 +56,10 @@ class Game:
         self.rear_wheel = [0, 0]
         self.boost = []
         self.auto_mode = False
-        self.number_of_boxes = 100
+
+        self.number_of_boxes = 190
+
+        self.number_of_boxes = 80
         self.boxes_list = None
         self.box_positions = [(r.randint(-2500, 1200), r.randint(-2500, 1200)) for _ in range(self.number_of_boxes)]
 
@@ -84,7 +87,7 @@ class Game:
         self.boxImage = pygame.image.load('graphics/woodenBox.png').convert_alpha()
 
     def _init_game_settings(self):
-        self.car_settings = [16,  # 0-Max Speed,
+        self.car_settings = [12,  # 0-Max Speed,
                              0,  # 1-Current Count
                              10,  # 2-Acceleration rate
                              80,  # 3-Braking Rate
@@ -307,7 +310,7 @@ class Game:
         self.window_surface.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 600))
 
     def getDistance(self, degree):
-        degree_d = 17 * (3.142 / 180)
+        degree_d = 15 * (3.142 / 180)
         x_a = self.old_center[0] + 62 * math.cos(
             degree)  # car.png has 110x44px; we need to be outside of it, even when degree = 45
         y_a = self.old_center[1] + 62 * math.sin(degree)  # dx, dy are taken form trigonometry
@@ -478,7 +481,7 @@ class Game:
             if self.move_speed[0] > self.move_speed[1]:
                 self.car_settings[1] -= self.car_settings[3]
 
-            self.collisionDetect(self.move_radians)
+            #self.collisionDetect(self.move_radians)
             # draw the window onto the screen
             self.frame_rate()
             self.getDistance(self.move_radians)
@@ -549,7 +552,7 @@ class Game:
             self.move_up = True
             self.move_down = False
         if (speedRatio < 0):  # >
-            self.car_settings[3] = abs(speedRatio) * 1.2  # from 0 to 20  ->100
+            self.car_settings[3] = abs(speedRatio) * 0.8  # from 0 to 20  ->120
             self.move_up = False
             self.move_down = True
         if (speedRatio == 0):
