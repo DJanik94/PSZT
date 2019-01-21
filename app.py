@@ -49,7 +49,7 @@ class Game:
         self.move_radians = 0
         self.drawTrack = [1, 'laps1.txt']
         self.cursor = [40, 190, 200, 50]  # Start self.position for the cursor on the menu
-        self.option = [0, 'Start Trial','Mode: player','Mode: auto','Quit', 0] # menu self.options
+        self.option = [0, 'Start Trial', 'Mode: player', 'Mode: auto', 'Quit', 0] # menu self.options
         self.old_front_position = [0, 0]
         self.old_read_position = [0, 0]
         self.front_wheel = [0, 0]
@@ -57,13 +57,10 @@ class Game:
         self.boost = []
         self.auto_mode = False
 
-        self.number_of_boxes = 190
-
         self.number_of_boxes = 80
         self.boxes_list = None
         self.box_positions = [(r.randint(-2500, 1200), r.randint(-2500, 1200)) for _ in range(self.number_of_boxes)]
 
-        self.boxes_list = None
         self.basicFont = pygame.font.Font("fonts/font_game.otf", 24)
 
         self.overhead_image = pygame.image.load('graphics/overhead_tile.png').convert_alpha()
@@ -216,7 +213,6 @@ class Game:
         return player_image
 
     def move_track(self):
-
         self.window_surface.blit(self.trackImage62, (self.position[0] - 1000, self.position[1] - 115))
         self.window_surface.blit(self.trackImage6, (self.position[0] - 700, self.position[1] - 100))
         self.window_surface.blit(self.trackImage6, (self.position[0] - 400, self.position[1] - 100))
@@ -347,12 +343,10 @@ class Game:
         pygame.draw.rect(self.window_surface, self.WHITE, (int(x_l), int(y_l), 5, 5), 1)
         pygame.draw.rect(self.window_surface, self.WHITE, (int(x_r), int(y_r), 5, 5), 1)
 
-        distanceAhead = math.sqrt((x_a - self.old_center[0]) ** 2 + (y_a - self.old_center[1]) ** 2) - 62
-        distanceRight = math.sqrt((x_r - self.old_center[0]) ** 2 + (y_r - self.old_center[1]) ** 2) - 62
-        distanceLeft = math.sqrt((x_l - self.old_center[0]) ** 2 + (y_l - self.old_center[1]) ** 2) - 62
-        #textDistance = 'Distance ahead:' + str(distanceAhead)
-        #print (round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2))
-        return round(distanceLeft, 2), round(distanceAhead, 2),  round(distanceRight, 2)
+        distance_ahead = math.sqrt((x_a - self.old_center[0]) ** 2 + (y_a - self.old_center[1]) ** 2) - 62
+        distance_right = math.sqrt((x_r - self.old_center[0]) ** 2 + (y_r - self.old_center[1]) ** 2) - 62
+        distance_left = math.sqrt((x_l - self.old_center[0]) ** 2 + (y_l - self.old_center[1]) ** 2) - 62
+        return round(distance_left, 2), round(distance_ahead, 2),  round(distance_right, 2)
 
     def collisionDetect(self, degree):
         if self.rot_rect.collidelist(self.boxes_list) != -1:
@@ -363,8 +357,6 @@ class Game:
             yB = self.old_center[1] - 44 * math.sin(degree)
             distance_ahead = math.sqrt((xA - colliding_box.center[0]) ** 2 + (yA - colliding_box.center[1]) ** 2)
             distance_backwards = math.sqrt((xB - colliding_box.center[0]) ** 2 + (yB - colliding_box.center[1]) ** 2)
-            pygame.draw.rect(self.window_surface, self.WHITE, (int(xA), int(yA), 5, 5), 1)  # for tests
-            pygame.draw.rect(self.window_surface, self.WHITE, (int(xB), int(yB), 5, 5), 1)  # for tests
             if distance_ahead < 50:
                 self.car_settings[1] = -self.car_settings[1]  # value from tests
                 self.move_speed[0] = -1
@@ -534,32 +526,28 @@ class Game:
 
         left, ahead, right = self.getDistance(self.move_radians)
         speedRatio, dirRatio = self.controller.compute(left, ahead, right)
-        #speedRatio =100;
-        #dirRatio = -100;
-        if (dirRatio < 0):  # <
+        if dirRatio < 0:
             self.car_settings[8] = (-dirRatio + 110) * 0.01  # from 0.1 to 2.1
             self.move_left = True
             self.move_right = False
-        if (dirRatio > 0):
+        if dirRatio > 0:
             self.car_settings[8] = (dirRatio + 110) * 0.01
             self.move_left = False
             self.move_right = True
-        if (dirRatio == 0):
+        if dirRatio == 0:
             self.move_left = False
             self.move_right = False
-        if (speedRatio > 0):
-            self.car_settings[2] = abs(speedRatio) * 0.1  # from 0 to 12
+        if speedRatio > 0:
+            self.car_settings[2] = abs(speedRatio) * 0.1  # from 0 to 10
             self.move_up = True
             self.move_down = False
-        if (speedRatio < 0):  # >
-            self.car_settings[3] = abs(speedRatio) * 0.8  # from 0 to 20  ->120
+        if speedRatio < 0:  # >
+            self.car_settings[3] = abs(speedRatio) * 0.8  # from 0 to 80
             self.move_up = False
             self.move_down = True
-        if (speedRatio == 0):
+        if speedRatio == 0:
             self.move_up = False
             self.move_down = False
-
-
 
 
 if __name__ == '__main__':
