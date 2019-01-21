@@ -56,7 +56,7 @@ class Game:
         self.rear_wheel = [0, 0]
         self.boost = []
         self.auto_mode = False
-        self.number_of_boxes = 100
+        self.number_of_boxes = 190
         self.boxes_list = None
         self.box_positions = [(r.randint(-2500, 1200), r.randint(-2500, 1200)) for _ in range(self.number_of_boxes)]
 
@@ -309,7 +309,7 @@ class Game:
         self.window_surfacee.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 600))
 
     def getDistance(self, degree):
-        degree_d = 17 * (3.142 / 180)
+        degree_d = 15 * (3.142 / 180)
         x_a = self.old_center[0] + 62 * math.cos(
             degree)  # car.png has 110x44px; we need to be outside of it, even when degree = 45
         y_a = self.old_center[1] + 62 * math.sin(degree)  # dx, dy are taken form trigonometry

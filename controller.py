@@ -22,11 +22,11 @@ class FuzzyCarController:
         """Generate membership functions for inputs"""
 
         self.centerDistance['close'] = fuzz.trimf(self.inputUniverse, [-1, 1, 200])
-        self.centerDistance['safe'] = fuzz.trimf(self.inputUniverse, [1, 200, 400])
-        self.centerDistance['far'] = fuzz.trapmf(self.inputUniverse, [200, 400, 600, 600])
+        self.centerDistance['safe'] = fuzz.trimf(self.inputUniverse, [1, 220, 440])
+        self.centerDistance['far'] = fuzz.trapmf(self.inputUniverse, [220, 440, 600, 600])
 
-        self.centerDistDiff['safe'] = fuzz.trapmf(self.differenceUniverse, [-600, -600, 0, 2])
-        self.centerDistDiff['sharp'] = fuzz.trapmf(self.differenceUniverse, [0, 2, 600, 600])
+        self.centerDistDiff['safe'] = fuzz.trapmf(self.differenceUniverse, [-600, -600, -15, 0])
+        self.centerDistDiff['sharp'] = fuzz.trapmf(self.differenceUniverse, [-15, 0, 600, 600])
 
         for antecedent in [self.leftDistance, self.rightDistance]:
             antecedent['close'] = fuzz.trimf(self.inputUniverse, [-1, 0, 160])
@@ -43,13 +43,13 @@ class FuzzyCarController:
         """Generate membership functions for outputs"""
         self.speedControl['hard_brake'] = fuzz.trimf(self.outputUniverse, [-101, -100, -99])
         self.speedControl['brake'] = fuzz.trimf(self.outputUniverse, [-80, -70, -60])
-        self.speedControl['do_nothing'] = fuzz.trimf(self.outputUniverse, [-5, -3, -1])
-        self.speedControl['accelerate'] = fuzz.trimf(self.outputUniverse, [5, 10, 15])
-        self.speedControl['full_ahead'] = fuzz.trimf(self.outputUniverse, [40, 50, 51])
+        self.speedControl['do_nothing'] = fuzz.trimf(self.outputUniverse, [-5, -4, -3])
+        self.speedControl['accelerate'] = fuzz.trimf(self.outputUniverse, [25, 35, 45])
+        self.speedControl['full_ahead'] = fuzz.trimf(self.outputUniverse, [99, 100, 101])
         self.turn['sharp_left'] = fuzz.trimf(self.outputUniverse, [-101, -100, -90])
-        self.turn['turn_left'] = fuzz.trimf(self.outputUniverse, [-60, -50, -40])
+        self.turn['turn_left'] = fuzz.trimf(self.outputUniverse, [-60, -40, -20])
         self.turn['do_nothing'] = fuzz.trimf(self.outputUniverse, [-1, 0, 1])
-        self.turn['turn_right'] = fuzz.trimf(self.outputUniverse, [40, 50, 60])
+        self.turn['turn_right'] = fuzz.trimf(self.outputUniverse, [20, 40, 60])
         self.turn['sharp_right'] = fuzz.trimf(self.outputUniverse, [90, 100, 101])
 
         """Generate rules"""
