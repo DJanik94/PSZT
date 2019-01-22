@@ -525,7 +525,7 @@ class Game:
                     self.menu()
 
         left, ahead, right = self.getDistance(self.move_radians)
-        speedRatio, dirRatio = self.controller.compute(left, ahead, right)
+        speedRatio, dirRatio = self.controller.compute(left, ahead, right, self.move_speed[0])
         if dirRatio < 0:
             self.car_settings[8] = (-dirRatio + 110) * 0.01  # from 0.1 to 2.1
             self.move_left = True
