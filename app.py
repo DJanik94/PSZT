@@ -1,530 +1,555 @@
 from __future__ import division
-import pygame, sys, time, random, math
-from pygame.locals import *
 
-#----------------------------------------
+import sys
+import math
+
+import pygame
+from pygame.locals import *
+import controller
+import random as r
+
+# ----------------------------------------
 # Based on Grip by Stuart Laxton
 #
 #
-#----------------------------------------
+# ----------------------------------------
 
-# set up pygame
-pygame.init()
-mainClock = pygame.time.Clock()
 
-# set up the window
-WINDOWWIDTH = 1200
-WINDOWHEIGHT = 600
-windowSurface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT),0,32)
-pygame.display.set_caption('PSZT')
+class Game:
+    
+    def __init__(self):
+        pygame.init()
+        self.mainClock = pygame.time.Clock()
+        self._init_game_context()
+        self._init_game_settings()
+        self.controller = controller.FuzzyCarController()
+        
+    def _init_game_context(self):
+        # set up the window
+        self.WINDOWWIDTH = 1200
+        self.WINDOWHEIGHT = 600
+        self.window_surface = pygame.display.set_mode((self.WINDOWWIDTH, self.WINDOWHEIGHT), 0, 32)
+        pygame.display.set_caption('PSZT Game Project')
+        self.player_settings = []
 
-# set up the colors
-BLACK = (0, 0, 0)
-WHITE = (255,255,255)
-BROWN = (56,56,35)
+        # set up the colors
+        self.BLACK = (0, 0, 0)
+        self.WHITE = (255, 255, 255)
 
-# set up variables
-moveLeft = False
-moveRight = False
-moveUp = False
-moveDown = False
-MOVESPEED = 50
-carSettings = [16, 0, 12, 20, 8, 120, 2, 120, 1]# 0-Max Speed, 1-Current Count, 2-Acceleration rate, 3-Braking Rate, 4-Free Wheel, 5-Gear Change,6-Turn Speed,7-Max Boost, 8 - ratioDegree
-movespeed = [0,0,2,0]#0-Current movespeed, 1-Max movespeed, 2-Rotation speed, 3-Turn Speed Multiply
-position = [650,250,0,0,0,0]# 0-1 Track position, 2-3 Background position, 4-5 Previous position
-rotRect = (110,44)
-degree = 0# Player rotation angle
-radians = 0
-moveRadians = 0
-drawTrack = [1,'laps1.txt']
-fps = [0,60,10,60,0]# 0-On/Off, 1-Set Point, 2-Actual FPS, 3-Lowest Recorded, 4-Highest Recorded
-playerSettings = [WINDOWWIDTH/2-50,WINDOWHEIGHT/2,0,0]# 0-Player Horizontal, 1-Player Vertical, 2-Rotation position (x5 for degrees)
-curser = [40, 190, 200, 50]# Start position for the curser on the menu
-option = [0, 'Start Trial','Mode: player','Mode: auto','Quit', 0]# menu options
-oldFrontPosition = [0,0]
-oldRearPosition = [0,0]
-frontWheel = [0,0]
-rearWheel = [0,0]
-boost = []
-mode = True # true for player, false for auto-mode
-boxesList = [None]*5
-basicFont = pygame.font.Font("fonts/font_game.otf", 24)
-overheadImage = pygame.image.load('graphics/overhead_tile.png').convert_alpha()
-boxImage = pygame.image.load('graphics/woodenBox.png').convert_alpha()
-signImage = pygame.image.load('graphics/sign.png').convert_alpha()
-trackImage11 = pygame.image.load('graphics/b-1-1.png').convert_alpha()
-trackImage21 = pygame.image.load('graphics/b-2-1.png').convert_alpha()
-trackImage31 = pygame.image.load('graphics/b-3-1.png').convert_alpha()
-trackImage41 = pygame.image.load('graphics/b-4-1.png').convert_alpha()
-trackImage5 = pygame.image.load('graphics/st-v-3.png').convert_alpha()
-trackImage51 = pygame.image.load('graphics/st-v-3-k1.png').convert_alpha()
-trackImage52 = pygame.image.load('graphics/st-v-3-k2.png').convert_alpha()
-trackImage53 = pygame.image.load('graphics/st-v-3-k3.png').convert_alpha()
-trackImage54 = pygame.image.load('graphics/st-v-3-k4.png').convert_alpha()
-trackImage6 = pygame.image.load('graphics/st-h-3.png').convert_alpha()
-trackImage61 = pygame.image.load('graphics/st-h-3-k1.png').convert_alpha()
-trackImage62 = pygame.image.load('graphics/st-h-3-k2.png').convert_alpha()
-trackImage63 = pygame.image.load('graphics/st-h-3-k3.png').convert_alpha()
-trackImage64 = pygame.image.load('graphics/st-h-3-k4.png').convert_alpha()
-trackImage12 = pygame.image.load('graphics/b-1-2.png').convert_alpha()
-trackImage22 = pygame.image.load('graphics/b-2-2.png').convert_alpha()
-trackImage32 = pygame.image.load('graphics/b-3-2.png').convert_alpha()
-trackImage42 = pygame.image.load('graphics/b-4-2.png').convert_alpha()
-trackImage13 = pygame.image.load('graphics/b-1-3.png').convert_alpha()
-trackImage23 = pygame.image.load('graphics/b-2-3.png').convert_alpha()
-trackImage33 = pygame.image.load('graphics/b-3-3.png').convert_alpha()
-trackImage43 = pygame.image.load('graphics/b-4-3.png').convert_alpha()
-trackImage14 = pygame.image.load('graphics/b-1-4.png').convert_alpha()
-trackImage24 = pygame.image.load('graphics/b-2-4.png').convert_alpha()
-trackImage34 = pygame.image.load('graphics/b-3-4.png').convert_alpha()
-trackImage44 = pygame.image.load('graphics/b-4-4.png').convert_alpha()
+        # init variables
+        self.move_left = False
+        self.move_right = False
+        self.move_up = False
+        self.move_down = False
+        self.old_center = None
+        self.speed = 50
+        self.player_image = None
+        self.degree = 0  # Player rotation angle
+        self.radians = 0
+        self.move_radians = 0
+        self.drawTrack = [1, 'laps1.txt']
+        self.cursor = [40, 190, 200, 50]  # Start self.position for the cursor on the menu
+        self.option = [0, 'Start Trial', 'Mode: player', 'Mode: auto', 'Quit', 0] # menu self.options
+        self.old_front_position = [0, 0]
+        self.old_read_position = [0, 0]
+        self.front_wheel = [0, 0]
+        self.rear_wheel = [0, 0]
+        self.boost = []
+        self.auto_mode = False
 
-def setDisplay(w,h):
-    playerSettings[0] = WINDOWWIDTH/2-50
-    playerSettings[1] = WINDOWHEIGHT/2
-    windowSurface = pygame.display.set_mode((w, h),0,32)
-    pygame.display.set_caption('PSZT')
+        self.number_of_boxes = 80
+        self.boxes_list = None
+        self.box_positions = [(r.randint(-2500, 1200), r.randint(-2500, 1200)) for _ in range(self.number_of_boxes)]
 
-def framerate():
-    mainClock.tick(fps[1])
-    fps[2]=int(mainClock.get_fps())
-    if fps[2]<fps[3]:
-        fps[3]=fps[2]
-    if fps[2]>fps[4]:
-        fps[4]=fps[2]
+        self.basicFont = pygame.font.Font("fonts/font_game.otf", 24)
 
-# Opening menu
-def menu():
-    # run the menu loop
-    moveUp = False
-    moveDown = False
-    moveLeft = False
-    moveRight = False
-    global position
-    global playerImage
-    global boost
-    global mode
-    while option[5]==0:# Option [5] is the selection output bit
-        # check for events
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == KEYDOWN:
+        self.overhead_image = pygame.image.load('graphics/overhead_tile.png').convert_alpha()
+        self.trackImage11 = pygame.image.load('graphics/b-1-1.png').convert_alpha()
+        self.trackImage21 = pygame.image.load('graphics/b-2-1.png').convert_alpha()
+        self.trackImage31 = pygame.image.load('graphics/b-3-1.png').convert_alpha()
+        self.trackImage41 = pygame.image.load('graphics/b-4-1.png').convert_alpha()
+        self.trackImage53 = pygame.image.load('graphics/st-v-3-k3.png').convert_alpha()
+        self.trackImage54 = pygame.image.load('graphics/st-v-3-k4.png').convert_alpha()
+        self.trackImage6 = pygame.image.load('graphics/st-h-3.png').convert_alpha()
+        self.trackImage61 = pygame.image.load('graphics/st-h-3-k1.png').convert_alpha()
+        self.trackImage62 = pygame.image.load('graphics/st-h-3-k2.png').convert_alpha()
+        self.trackImage63 = pygame.image.load('graphics/st-h-3-k3.png').convert_alpha()
+        self.trackImage64 = pygame.image.load('graphics/st-h-3-k4.png').convert_alpha()
+        self.trackImage12 = pygame.image.load('graphics/b-1-2.png').convert_alpha()
+        self.trackImage22 = pygame.image.load('graphics/b-2-2.png').convert_alpha()
+        self.trackImage14 = pygame.image.load('graphics/b-1-4.png').convert_alpha()
+        self.trackImage24 = pygame.image.load('graphics/b-2-4.png').convert_alpha()
+        self.trackImage34 = pygame.image.load('graphics/b-3-4.png').convert_alpha()
+        self.trackImage44 = pygame.image.load('graphics/b-4-4.png').convert_alpha()
+        self.boxImage = pygame.image.load('graphics/woodenBox.png').convert_alpha()
+
+    def _init_game_settings(self):
+        self.car_settings = [12,  # 0-Max Speed,
+                             0,  # 1-Current Count
+                             10,  # 2-Acceleration rate
+                             80,  # 3-Braking Rate
+                             2,  # 4-Free Wheel
+                             80,  # 5-Gear Change
+                             2,  # 6-Turn Speed
+                             120,  # 7-Max Boost
+                             1]     # 8 - Ratio Degree?
+
+        self.move_speed = [0,  # 0-Current self.move_speed
+                           0,  # 1-Max self.move_speed
+                           2,  # 2-Rotation speed
+                           0]  # 3-Turn Speed Multiply
+
+        self.position = [650,  # 0-1 Track self.position
+                         250,
+                         0,  # 2-3 Background self.position
+                         0,
+                         0,  # 4-5 Previous self.position
+                         0]
+
+        self.fps = [0,  # 0-On/Off
+                    60,  # 1-Set Point
+                    10,  # 2-Actual FPS
+                    60,  # 3-Lowest Recorded
+                    0]  # 4-Highest Recorded
+
+        self.player_settings = [self.WINDOWWIDTH / 2 - 50,  # 0-Player Horizontal
+                               self.WINDOWHEIGHT / 2,  # 1-Player Vertical
+                               0,  # 2-Rotation self.position (x5 for degrees)
+                               0]
+
+        self.rot_rect = (110, 44)
+        
+    def frame_rate(self):
+        fps = self.fps
+        self.mainClock.tick(fps[1])
+        fps[2] = int(self.mainClock.get_fps())
+        if fps[2] < fps[3]:
+            fps[3] = fps[2]
+        if fps[2] > fps[4]:
+            fps[4] = fps[2]
+
+    def menu(self):
+        # run the menu loop
+        self.move_up = False
+        self.move_down = False
+        self.move_left = False
+        self.move_right = False
+        self._init_game_settings()
+
+        while self.option[5] == 0:  # self.option [5] is the selection output bit
+            # check for events
+            for _event in pygame.event.get():
+                if _event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if _event.type == KEYDOWN:
                     # change the keyboard variables
-                    if event.key == K_UP or event.key == ord('w'):#Curser Up
-                        moveDown = False
-                        moveUp = True
-                    if event.key == K_DOWN or event.key == ord('s'):#Curser Down
-                        moveUp = False
-                        moveDown = True
-                    if event.key == K_RETURN or event.key == K_SPACE:#Select current option
-                        if curser[1]==190:#Start game
-                            position = [(WINDOWWIDTH/2)+50,(WINDOWHEIGHT/2)-50,0,0,0,0]
-                            playerImage = playerGraphics()
-                            boost = []
-                            playerSettings[2]=0
-                            option[5]=1
-                        if curser[1]==290:#Quit game
+                    if _event.key == K_UP or _event.key == ord('w'):  # cursor Up
+                        self.move_down = False
+                        self.move_up = True
+                    if _event.key == K_DOWN or _event.key == ord('s'):  # cursor Down
+                        self.move_up = False
+                        self.move_down = True
+                    if _event.key == K_RETURN or _event.key == K_SPACE:  # Select current self.option
+                        if self.cursor[1] == 190:  # Start game
+                            self.position = [(self.WINDOWWIDTH / 2) + 50, (self.WINDOWHEIGHT / 2) - 50, 0, 0, 0, 0]
+                            self.player_image = self.player_graphics()
+                            self.boost = []
+                            self.player_settings[2] = 0
+                            self.option[5] = 1
+                        if self.cursor[1] == 290:  # Quit game
                             pygame.quit()
                             sys.exit()
-                    if event.key == K_RIGHT or event.key == ord('a'):
-                        if curser[1]==240:#choose mode
-                            if (mode == True):
-                                mode = False
+                    if _event.key == K_RIGHT or _event.key == ord('a'):
+                        if self.cursor[1] == 240:  # choose mode
+                            if (self.auto_mode == True):
+                                self.auto_mode = False
                             else:
-                                mode = True
-            if event.type == KEYUP:
-                    if event.key == K_ESCAPE:
+                                self.auto_mode = True
+
+                if _event.type == KEYUP:
+                    if _event.key == K_ESCAPE:
                         pygame.quit()
                         sys.exit()
-                    if event.key == K_UP or event.key == ord('w'):
-                        moveUp = False
-                    if event.key == K_DOWN or event.key == ord('s'):
-                        moveDown = False
+                    if _event.key == K_UP or _event.key == ord('w'):
+                        self.move_up = False
+                    if _event.key == K_DOWN or _event.key == ord('s'):
+                        self.move_down = False
 
-        # move the Curser
-        if moveDown and curser[1] < 290:
-            curser[1] += MOVESPEED
-            moveDown = False
-        if moveUp and curser[1] > 180:
-            curser[1] -= MOVESPEED
-            moveUp = False
+            # move the cursor
+            if self.move_down and self.cursor[1] < 290:
+                self.cursor[1] += self.speed
+                self.move_down = False
+            if self.move_up and self.cursor[1] > 180:
+                self.cursor[1] -= self.speed
+                self.move_up = False
 
-        # draw the background onto the surface & draw the banner
-        drawBack()
-        moveTrack()
+            # draw the background onto the surface & draw the banner
+            self.drawBack()
+            self.move_track()
 
-        # draw the curser onto the surface
-        pygame.draw.rect(windowSurface, WHITE, (curser[0],curser[1],curser[2],curser[3]),1)
+            # draw the cursor onto the surface
+            pygame.draw.rect(self.window_surface, self.WHITE,
+                             (self.cursor[0], self.cursor[1], self.cursor[2], self.cursor[3]), 1)
 
-        # draw the options onto the surface
-        text1 = basicFont.render(option[1], True, WHITE,)
-        if (mode==True):
-            text2 = basicFont.render(option[2], True, WHITE,)
-        else:
-            text2 = basicFont.render(option[3], True, WHITE, )
-        text3 = basicFont.render(option[4], True, WHITE,)
-        windowSurface.blit(text1, (52,202))
-        windowSurface.blit(text2, (52,252))
-        windowSurface.blit(text3, (52,302))
+            # draw the self.options onto the surface
+            text1 = self.basicFont.render(self.option[1], True, self.WHITE, )
+            if not self.auto_mode:
+                text2 = self.basicFont.render(self.option[2], True, self.WHITE, )
+            else:
+                text2 = self.basicFont.render(self.option[3], True, self.WHITE, )
 
-        framerate()
-        # draw the window onto the screen
-        pygame.display.update()
+            text3 = self.basicFont.render(self.option[4], True, self.WHITE, )
+            self.window_surface.blit(text1, (52, 202))
+            self.window_surface.blit(text2, (52, 252))
+            self.window_surface.blit(text3, (52, 302))
 
-def playerGraphics():
-    playerImage = pygame.image.load('graphics/car.png').convert_alpha()
-    return playerImage
+            self.frame_rate()
+            # draw the window onto the screen
+            pygame.display.update()
 
-def moveTrack():
-    windowSurface.blit(trackImage62,(position[0]-1000,position[1]-115))
-    windowSurface.blit(trackImage6,(position[0]-700,position[1]-100))
-    windowSurface.blit(trackImage6,(position[0]-400,position[1]-100))
-    windowSurface.blit(trackImage6,(position[0]-100,position[1]-100))
-    windowSurface.blit(trackImage6,(position[0],position[1]-100))
-    windowSurface.blit(trackImage64,(position[0]+300,position[1]-100))
-    windowSurface.blit(trackImage41,(position[0]+600,position[1]-100))
-    windowSurface.blit(trackImage31,(position[0]+600,position[1]+300))
-    windowSurface.blit(trackImage63,(position[0]+300,position[1]+385))
-    windowSurface.blit(trackImage6,(position[0],position[1]+400))
-    windowSurface.blit(trackImage6,(position[0]-300,position[1]+400))
-    windowSurface.blit(trackImage61,(position[0]-600,position[1]+400))
-    windowSurface.blit(trackImage12,(position[0]-1100,position[1]+400))
-    windowSurface.blit(trackImage22,(position[0]-1100,position[1]+900))
-    windowSurface.blit(trackImage62,(position[0]-600,position[1]+1085))
-    windowSurface.blit(trackImage6,(position[0]-300,position[1]+1100))
-    windowSurface.blit(trackImage6,(position[0],position[1]+1100))
-    windowSurface.blit(trackImage6,(position[0]+300,position[1]+1100))
-    windowSurface.blit(trackImage6,(position[0]+600,position[1]+1100))
-    windowSurface.blit(trackImage63,(position[0]+900,position[1]+1085))
-    windowSurface.blit(trackImage34,(position[0]+1200,position[1]+700))
-    windowSurface.blit(trackImage53,(position[0]+1585,position[1]+400))
-    windowSurface.blit(trackImage54,(position[0]+1585,position[1]+100))
-    windowSurface.blit(trackImage41,(position[0]+1500,position[1]-300))
-    windowSurface.blit(trackImage21,(position[0]+1100,position[1]-400))
-    windowSurface.blit(trackImage44,(position[0]+700,position[1]-1100))
-    windowSurface.blit(trackImage11,(position[0]+300,position[1]-1100))
-    windowSurface.blit(trackImage31,(position[0]+200,position[1]-700))
-    windowSurface.blit(trackImage63,(position[0]-100,position[1]-615))
-    windowSurface.blit(trackImage62,(position[0]-100,position[1]-615))
-    windowSurface.blit(trackImage22,(position[0]-600,position[1]-800))
-    windowSurface.blit(trackImage41,(position[0]-700,position[1]-1200))
-    windowSurface.blit(trackImage64,(position[0]-1000,position[1]-1200))
-    windowSurface.blit(trackImage61,(position[0]-1000,position[1]-1200))
-    windowSurface.blit(trackImage14,(position[0]-1700,position[1]-1200))
-    windowSurface.blit(trackImage24,(position[0]-1700,position[1]-500))
+    def player_graphics(self):
+        player_image = pygame.image.load('graphics/car.png').convert_alpha()
+        return player_image
 
-    windowSurface.blit(boxImage, (position[0] - 120, position[1] - 20))
-    windowSurface.blit(boxImage, (position[0] - 45, position[1] - 300))
-    windowSurface.blit(boxImage, (position[0] - 10, position[1] - 200))
-    windowSurface.blit(boxImage, (position[0] - 500, position[1] - 500))
-    windowSurface.blit(boxImage, (position[0] + 300, position[1] + 100))
-    box0 = Rect(position[0] - 120, position[1] - 20, 50, 50)
-    box1 = Rect(position[0] - 45, position[1] - 300, 50, 50)
-    box2 = Rect(position[0] - 10, position[1] - 200, 50, 50)
-    box3 = Rect(position[0] - 500, position[1] - 500, 50, 50)
-    box4 = Rect(position[0] + 300, position[1] + 100, 50, 50)
-    boxesList[0] = box0
-    boxesList[1] = box1
-    boxesList[2] = box2
-    boxesList[3] = box3
-    boxesList[4] = box4
+    def move_track(self):
+        self.window_surface.blit(self.trackImage62, (self.position[0] - 1000, self.position[1] - 115))
+        self.window_surface.blit(self.trackImage6, (self.position[0] - 700, self.position[1] - 100))
+        self.window_surface.blit(self.trackImage6, (self.position[0] - 400, self.position[1] - 100))
+        self.window_surface.blit(self.trackImage6, (self.position[0] - 100, self.position[1] - 100))
+        self.window_surface.blit(self.trackImage6, (self.position[0], self.position[1] - 100))
+        self.window_surface.blit(self.trackImage64, (self.position[0] + 300, self.position[1] - 100))
+        self.window_surface.blit(self.trackImage41, (self.position[0] + 600, self.position[1] - 100))
+        self.window_surface.blit(self.trackImage31, (self.position[0] + 600, self.position[1] + 300))
+        self.window_surface.blit(self.trackImage63, (self.position[0] + 300, self.position[1] + 385))
+        self.window_surface.blit(self.trackImage6, (self.position[0], self.position[1] + 400))
+        self.window_surface.blit(self.trackImage6, (self.position[0] - 300, self.position[1] + 400))
+        self.window_surface.blit(self.trackImage61, (self.position[0] - 600, self.position[1] + 400))
+        self.window_surface.blit(self.trackImage12, (self.position[0] - 1100, self.position[1] + 400))
+        self.window_surface.blit(self.trackImage22, (self.position[0] - 1100, self.position[1] + 900))
+        self.window_surface.blit(self.trackImage62, (self.position[0] - 600, self.position[1] + 1085))
+        self.window_surface.blit(self.trackImage6, (self.position[0] - 300, self.position[1] + 1100))
+        self.window_surface.blit(self.trackImage6, (self.position[0], self.position[1] + 1100))
+        self.window_surface.blit(self.trackImage6, (self.position[0] + 300, self.position[1] + 1100))
+        self.window_surface.blit(self.trackImage6, (self.position[0] + 600, self.position[1] + 1100))
+        self.window_surface.blit(self.trackImage63, (self.position[0] + 900, self.position[1] + 1085))
+        self.window_surface.blit(self.trackImage34, (self.position[0] + 1200, self.position[1] + 700))
+        self.window_surface.blit(self.trackImage53, (self.position[0] + 1585, self.position[1] + 400))
+        self.window_surface.blit(self.trackImage54, (self.position[0] + 1585, self.position[1] + 100))
+        self.window_surface.blit(self.trackImage41, (self.position[0] + 1500, self.position[1] - 300))
+        self.window_surface.blit(self.trackImage21, (self.position[0] + 1100, self.position[1] - 400))
+        self.window_surface.blit(self.trackImage44, (self.position[0] + 700, self.position[1] - 1100))
+        self.window_surface.blit(self.trackImage11, (self.position[0] + 300, self.position[1] - 1100))
+        self.window_surface.blit(self.trackImage31, (self.position[0] + 200, self.position[1] - 700))
+        self.window_surface.blit(self.trackImage63, (self.position[0] - 100, self.position[1] - 615))
+        self.window_surface.blit(self.trackImage62, (self.position[0] - 100, self.position[1] - 615))
+        self.window_surface.blit(self.trackImage22, (self.position[0] - 600, self.position[1] - 800))
+        self.window_surface.blit(self.trackImage41, (self.position[0] - 700, self.position[1] - 1200))
+        self.window_surface.blit(self.trackImage64, (self.position[0] - 1000, self.position[1] - 1200))
+        self.window_surface.blit(self.trackImage61, (self.position[0] - 1000, self.position[1] - 1200))
+        self.window_surface.blit(self.trackImage14, (self.position[0] - 1700, self.position[1] - 1200))
+        self.window_surface.blit(self.trackImage24, (self.position[0] - 1700, self.position[1] - 500))
 
-def drawBack():
-    if position[2] >= 200:
-        position[2] -=200
-    if position[2] <= -200:
-        position[2] += 200
-    if position[3] >= 200:
-        position[3] -= 200
-    if position[3] <= -200:
-        position[3] += 200
-    windowSurface.blit(overheadImage,(position[2]+1200,position[3]-200))
-    windowSurface.blit(overheadImage,(position[2]+1000,position[3]-200))
-    windowSurface.blit(overheadImage,(position[2]+800,position[3]-200))
-    windowSurface.blit(overheadImage,(position[2]+600,position[3]-200))
-    windowSurface.blit(overheadImage,(position[2]+400,position[3]-200))
-    windowSurface.blit(overheadImage,(position[2]+200,position[3]-200))
-    windowSurface.blit(overheadImage,(position[2],position[3]-200))
-    windowSurface.blit(overheadImage,(position[2]-200,position[3]-200))
-    windowSurface.blit(overheadImage,(position[2]+1200,position[3]))
-    windowSurface.blit(overheadImage,(position[2]+1000,position[3]))
-    windowSurface.blit(overheadImage,(position[2]+800,position[3]))
-    windowSurface.blit(overheadImage,(position[2]+600,position[3]))
-    windowSurface.blit(overheadImage,(position[2]+400,position[3]))
-    windowSurface.blit(overheadImage,(position[2]+200,position[3]))
-    windowSurface.blit(overheadImage,(position[2],position[3]))
-    windowSurface.blit(overheadImage,(position[2]-200,position[3]))
-    windowSurface.blit(overheadImage,(position[2]+1200,position[3]+200))
-    windowSurface.blit(overheadImage,(position[2]+1000,position[3]+200))
-    windowSurface.blit(overheadImage,(position[2]+800,position[3]+200))
-    windowSurface.blit(overheadImage,(position[2]+600,position[3]+200))
-    windowSurface.blit(overheadImage,(position[2]+400,position[3]+200))
-    windowSurface.blit(overheadImage,(position[2]+200,position[3]+200))
-    windowSurface.blit(overheadImage,(position[2],position[3]+200))
-    windowSurface.blit(overheadImage,(position[2]-200,position[3]+200))
-    windowSurface.blit(overheadImage,(position[2]+1200,position[3]+400))
-    windowSurface.blit(overheadImage,(position[2]+1000,position[3]+400))
-    windowSurface.blit(overheadImage,(position[2]+800,position[3]+400))
-    windowSurface.blit(overheadImage,(position[2]+600,position[3]+400))
-    windowSurface.blit(overheadImage,(position[2]+400,position[3]+400))
-    windowSurface.blit(overheadImage,(position[2]+200,position[3]+400))
-    windowSurface.blit(overheadImage,(position[2],position[3]+400))
-    windowSurface.blit(overheadImage,(position[2]-200,position[3]+400))
-    windowSurface.blit(overheadImage,(position[2]+1200,position[3]+600))
-    windowSurface.blit(overheadImage,(position[2]+1000,position[3]+600))
-    windowSurface.blit(overheadImage,(position[2]+800,position[3]+600))
-    windowSurface.blit(overheadImage,(position[2]+600,position[3]+600))
-    windowSurface.blit(overheadImage,(position[2]+400,position[3]+600))
-    windowSurface.blit(overheadImage,(position[2]+200,position[3]+600))
-    windowSurface.blit(overheadImage,(position[2],position[3]+600))
-    windowSurface.blit(overheadImage,(position[2]-200,position[3]+600))
+        self.boxes_list = [Rect(self.position[0] + position[0], self.position[1] + position[1], 50, 50) for position in self.box_positions]
 
-def getDistance(degree):
-    degree45 = 45 * (3.142/180)
-    xA = oldCenter[0] + 60*math.cos(degree) # car.png has 110x44px; we need to be outside of it, even when degree = 45
-    yA = oldCenter[1] + 60*math.sin(degree) # dx, dy are taken form trigonometry
-    xL = oldCenter[0] + 60*math.cos(degree -degree45)
-    yL = oldCenter[1] + 60*math.sin(degree -degree45)
-    xR = oldCenter[0] + 60*math.cos(degree +degree45)
-    yR = oldCenter[1] + 60*math.sin(degree +degree45)
-    pointA = (int(xA), int(yA))
-    pointL = (int(xL), int(yL))
-    pointR = (int(xR), int(yR))
-    colourA = windowSurface.get_at(pointA)
-    colourL = windowSurface.get_at(pointL)
-    colourR = windowSurface.get_at(pointR)
+        for point in self.box_positions:
+            self.window_surface.blit(self.boxImage, (self.position[0] + point[0], self.position[1] + point[1]))
 
-    while(colourA[0] >= 88 and colourA[0] <= 91 and colourA[1]>=88 and colourA[1]<=91 and colourA[2]>=88 and colourA[2] <= 91
-          and xA<WINDOWWIDTH-6 and yA<WINDOWHEIGHT-6 and xA>6 and yA>6):
-        xA = xA+ 5*math.cos(degree)
-        yA = yA + 5*math.sin(degree)
-        pointA = (int(xA),int(yA))
-        colourA = windowSurface.get_at(pointA)
-    while (colourL[0] >= 88 and colourL[0] <= 91 and colourL[1] >= 88 and colourL[1] <= 91 and colourL[2] >= 88 and
-           colourL[2] <= 91
-           and xL < WINDOWWIDTH - 6 and yL < WINDOWHEIGHT - 6 and xL > 6 and yL > 6):
-        xL = xL + 5 * math.cos(degree -degree45)
-        yL = yL + 5 * math.sin(degree -degree45)
-        pointL = (int(xL), int(yL))
-        colourL = windowSurface.get_at(pointL)
-    while (colourR[0] >= 88 and colourR[0] <= 91 and colourR[1] >= 88 and colourR[1] <= 91 and colourR[2] >= 88 and
-           colourR[2] <= 91
-           and xR < WINDOWWIDTH - 6 and yR < WINDOWHEIGHT - 6 and xR > 6 and yR > 6):
-        xR = xR + 5 * math.cos(degree +degree45)
-        yR = yR + 5 * math.sin(degree +degree45)
-        pointR = (int(xR), int(yR))
-        colourR = windowSurface.get_at(pointR)
-    pygame.draw.rect(windowSurface, WHITE, (int(xA), int(yA), 5, 5), 1)
-    pygame.draw.rect(windowSurface, WHITE, (int(xL), int(yL), 5, 5), 1)
-    pygame.draw.rect(windowSurface, WHITE, (int(xR), int(yR), 5, 5), 1)
+    def drawBack(self):
+        if self.position[2] >= 200:
+            self.position[2] -= 200
+        if self.position[2] <= -200:
+            self.position[2] += 200
+        if self.position[3] >= 200:
+            self.position[3] -= 200
+        if self.position[3] <= -200:
+            self.position[3] += 200
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 800, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 600, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 400, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 200, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2], self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] - 200, self.position[3] - 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1200, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1000, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 800, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 600, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 400, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 200, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2], self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] - 200, self.position[3]))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 800, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 600, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 400, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 200, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2], self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 200))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 800, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 600, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 400, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 200, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2], self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 400))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1200, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 1000, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 800, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 600, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 400, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] + 200, self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2], self.position[3] + 600))
+        self.window_surface.blit(self.overhead_image, (self.position[2] - 200, self.position[3] + 600))
 
-    distanceAhead = math.sqrt((xA - oldCenter[0])**2 + (yA- oldCenter[1])**2) - 62
-    distanceLeft = math.sqrt((xR - oldCenter[0]) ** 2 + (yR - oldCenter[1]) ** 2) - 88
-    distanceRight = math.sqrt((xL - oldCenter[0]) ** 2 + (yL - oldCenter[1]) ** 2) - 88
-    textDistance = 'Distance ahead:'+ str(distanceAhead)
-    textDisplay = basicFont.render(textDistance, True, WHITE, )
-    windowSurface.blit(textDisplay, (20, 20))
+    def getDistance(self, degree):
+        degree_d = 15 * (3.142 / 180)
+        x_a = self.old_center[0] + 62 * math.cos(
+            degree)  # car.png has 110x44px; we need to be outside of it, even when degree = 45
+        y_a = self.old_center[1] + 62 * math.sin(degree)  # dx, dy are taken form trigonometry
+        x_l = self.old_center[0] + 62 * math.cos(degree - degree_d)
+        y_l = self.old_center[1] + 62 * math.sin(degree - degree_d)
+        x_r = self.old_center[0] + 62 * math.cos(degree + degree_d)
+        y_r = self.old_center[1] + 62 * math.sin(degree + degree_d)
+        point_a = (int(x_a), int(y_a))
+        point_l = (int(x_l), int(y_l))
+        point_r = (int(x_r), int(y_r))
+        colour_a = self.window_surface.get_at(point_a)
+        colour_l = self.window_surface.get_at(point_l)
+        colour_r = self.window_surface.get_at(point_r)
 
-    return distanceAhead, distanceLeft, distanceRight
+        while (88 <= colour_a[0] <= 91 and 88 <= colour_a[1] <= 91 and 88 <= colour_a[2] <= 91
+               and x_a < self.WINDOWWIDTH - 6 and y_a < self.WINDOWHEIGHT - 6 and x_a > 6 and y_a > 6):
+            x_a = x_a + 2 * math.cos(degree)
+            y_a = y_a + 2 * math.sin(degree)
+            point_a = (int(x_a), int(y_a))
+            colour_a = self.window_surface.get_at(point_a)
+        while (88 <= colour_l[0] <= 91 and 91 >= colour_l[1] >= 88 <= colour_l[2] <= 91
+               and x_l < self.WINDOWWIDTH - 6 and y_l < self.WINDOWHEIGHT - 6 and x_l > 6 and y_l > 6):
+            x_l = x_l + 2 * math.cos(degree - degree_d)
+            y_l = y_l + 2 * math.sin(degree - degree_d)
+            point_l = (int(x_l), int(y_l))
+            colour_l = self.window_surface.get_at(point_l)
+        while (88 <= colour_r[0] <= 91 and 88 <= colour_r[1] <= 91 and 88 <= colour_r[2] <= 91
+               and x_r < self.WINDOWWIDTH - 6 and y_r < self.WINDOWHEIGHT - 6 and x_r > 6 and y_r > 6):
+            x_r = x_r + 2 * math.cos(degree + degree_d)
+            y_r = y_r + 2 * math.sin(degree + degree_d)
+            point_r = (int(x_r), int(y_r))
+            colour_r = self.window_surface.get_at(point_r)
+        pygame.draw.rect(self.window_surface, self.WHITE, (int(x_a), int(y_a), 5, 5), 1)
+        pygame.draw.rect(self.window_surface, self.WHITE, (int(x_l), int(y_l), 5, 5), 1)
+        pygame.draw.rect(self.window_surface, self.WHITE, (int(x_r), int(y_r), 5, 5), 1)
 
-def collisionDetect(degree):
-    if (rotRect.collidelist(boxesList) != -1):
-        collidingBox = boxesList[rotRect.collidelist(boxesList)]
-        xA = oldCenter[0] + 44 * math.cos(degree)
-        yA = oldCenter[1] + 44 * math.sin(degree)
-        xB = oldCenter[0] - 44 * math.cos(degree)
-        yB = oldCenter[1] - 44 * math.sin(degree)
-        distanceAhead = math.sqrt((xA - collidingBox.center[0]) ** 2 + (yA - collidingBox.center[1]) ** 2)
-        distanceBackwards = math.sqrt((xB - collidingBox.center[0]) ** 2 + (yB - collidingBox.center[1]) ** 2)
-        pygame.draw.rect(windowSurface, WHITE, (int(xA), int(yA), 5, 5), 1) #for tests
-        pygame.draw.rect(windowSurface, WHITE, (int(xB), int(yB), 5, 5), 1)  # for tests
-        if(distanceAhead < 50 ):
-            carSettings[1] = -carSettings[1] #value from tests
-            movespeed[0] = -5
+        distance_ahead = math.sqrt((x_a - self.old_center[0]) ** 2 + (y_a - self.old_center[1]) ** 2) - 62
+        distance_right = math.sqrt((x_r - self.old_center[0]) ** 2 + (y_r - self.old_center[1]) ** 2) - 62
+        distance_left = math.sqrt((x_l - self.old_center[0]) ** 2 + (y_l - self.old_center[1]) ** 2) - 62
+        return round(distance_left, 2), round(distance_ahead, 2),  round(distance_right, 2)
 
-        elif(distanceBackwards < 50 ):
-            carSettings[1] = -carSettings[1]  # value from tests
-            movespeed[0] = 5
+    def collisionDetect(self, degree):
+        if self.rot_rect.collidelist(self.boxes_list) != -1:
+            colliding_box = self.boxes_list[self.rot_rect.collidelist(self.boxes_list)]
+            xA = self.old_center[0] + 44 * math.cos(degree)
+            yA = self.old_center[1] + 44 * math.sin(degree)
+            xB = self.old_center[0] - 44 * math.cos(degree)
+            yB = self.old_center[1] - 44 * math.sin(degree)
+            distance_ahead = math.sqrt((xA - colliding_box.center[0]) ** 2 + (yA - colliding_box.center[1]) ** 2)
+            distance_backwards = math.sqrt((xB - colliding_box.center[0]) ** 2 + (yB - colliding_box.center[1]) ** 2)
+            if distance_ahead < 50:
+                self.car_settings[1] = -self.car_settings[1]  # value from tests
+                self.move_speed[0] = -1
 
-def rotation(image,where,degree):
-    # Calculate rotated graphics & centre position
-    surf =  pygame.Surface((88,44))
-    rotatedImage = pygame.transform.rotate(image,degree)
-    blittedRect = windowSurface.blit(surf, where)
-    oldCenter = blittedRect.center
-    rotatedSurf =  pygame.transform.rotate(surf, degree)
-    rotRect = rotatedSurf.get_rect()
-    rotRect.center = oldCenter
-    return rotatedImage, rotRect, oldCenter
+            elif distance_backwards < 50:
+                self.car_settings[1] = -self.car_settings[1]  # value from tests
+                self.move_speed[0] = 1
 
-# run the game loop
-setDisplay(WINDOWWIDTH,WINDOWHEIGHT)
-menu()
 
-while option[5]==1:
+    def rotation(self, image, where, degree):
+        # Calculate rotated graphics & centre self.position
+        surf = pygame.Surface((100, 50))
+        rotated_image = pygame.transform.rotate(image, degree)
+        blitted_rect = self.window_surface.blit(surf, where)
+        old_center = blitted_rect.center
+        rotated_surf = pygame.transform.rotate(surf, degree)
+        rot_rect = rotated_surf.get_rect()
+        rot_rect.center = old_center
+        return rotated_image, rot_rect, old_center
 
-    where = playerSettings[0], playerSettings[1]
-    playerRotatedImage, rotRect, oldCenter = rotation(playerImage, where, degree)
+    def play(self):
 
-    if mode == True:
-        for event in pygame.event.get():
-            if event.type == QUIT:
+        self.menu()
+
+        where = self.player_settings[0], self.player_settings[1]
+        self.playerrotated_image, self.rot_rect, self.old_center = self.rotation(self.player_image, where, self.degree)
+        #self.auto_mode = True
+        while self.option[5] == 1:
+            if self.auto_mode:
+                self.auto_control()
+            else:
+                self.player_control()
+
+            # Get rotated graphics
+            where = self.player_settings[0], self.player_settings[1]
+            self.playerrotated_image, self.rot_rect, self.old_center = self.rotation(self.player_image, where, self.degree)
+
+            # draw the track background onto the surface
+            self.drawBack()
+
+            # draw the track onto the surface
+            self.move_track()
+
+            # Check the background colour
+            colour = self.window_surface.get_at(self.old_center)  # centre colour
+            if colour[0] >= 88 and colour[0] <= 91 or colour[0] == 165 or colour[0] == 255:
+                1;
+            else:
+                self.move_speed[2] = 3
+                if self.move_speed[0] > 4:
+                    self.car_settings[1] -= self.car_settings[3] * 2
+                elif self.move_speed[0] < -4:
+                    self.car_settings[1] += self.car_settings[3] * 2
+
+            # draw the player onto the surface
+            self.window_surface.blit(self.playerrotated_image, self.rot_rect)
+
+            # Calculate player direction rotation
+            self.degree = -5 * self.player_settings[2]
+            self.move_radians = radians = -self.degree * (3.142 / 180)
+
+            self.position[0] -= (self.move_speed[0] * ((math.cos(self.move_radians))))
+            self.position[1] -= (self.move_speed[0] * ((math.sin(self.move_radians))))
+            self.front_wheel[0] = self.position[0] - (30 * ((math.cos(radians))))
+            self.front_wheel[1] = self.position[1] - (30 * ((math.sin(radians))))
+            self.rear_wheel[0] = self.position[0] + (30 * (math.cos(radians)))
+            self.rear_wheel[1] = self.position[1] + (30 * (math.sin(radians)))
+            self.position[2] -= (self.move_speed[0] * ((math.cos(self.move_radians))))
+            self.position[3] -= (self.move_speed[0] * ((math.sin(self.move_radians))))
+
+            if self.move_left:  # Turn Left
+                if self.move_speed[0] != 0:
+                    self.car_settings[6] -= 1
+                    if self.car_settings[6] == 0:
+                        self.player_settings[2] -= self.car_settings[8]
+                        self.car_settings[6] = self.move_speed[2]
+                        if self.player_settings[2] < 0:
+                            self.player_settings[2] = 71
+
+            if self.move_right:
+                if self.move_speed[0] != 0:
+                    self.car_settings[6] -= 1
+                    if self.car_settings[6] == 0:
+                        self.player_settings[2] += self.car_settings[8]
+                        self.car_settings[6] = self.move_speed[2]
+                        if self.player_settings[2] > 71:
+                            self.player_settings[2] = 0
+
+            # move the player
+            if self.move_down:  # Braking
+                self.car_settings[1] -= self.car_settings[3]
+            if self.move_up:  # Accelerate
+                self.car_settings[1] += self.car_settings[2]
+            elif self.move_speed[0] >= 0:
+                self.car_settings[1] -= self.car_settings[4]
+                self.move_speed[1] = self.car_settings[0]
+            elif self.move_speed[0] < 0:
+                self.car_settings[1] += self.car_settings[4]
+                self.move_speed[1] = self.car_settings[0]
+
+            if self.car_settings[1] >= self.car_settings[5] and self.move_speed[0] < self.move_speed[1]:  # Change up gear
+                self.move_speed[0] += 1
+                self.car_settings[1] = 0
+            elif self.car_settings[1] >= self.car_settings[5] and self.move_speed[0] >= self.move_speed[1]:  # Accelerate Limiter
+                self.car_settings[1] = self.car_settings[5]
+            elif self.car_settings[1] < 0 and self.move_speed[0] == -2 and self.move_down:  # moveBackwards prev: -self.car_settings[0]
+                self.car_settings[1] = -self.car_settings[1]
+            elif self.car_settings[1] < 0 and self.move_speed[0] <= 0 and self.move_down == False:  # Braking limiter
+                self.car_settings[1] = 0
+                self.move_speed[0] = 0
+            elif self.car_settings[1] < 0:  # Change down gears
+                self.move_speed[0] -= 1
+                self.car_settings[1] = self.car_settings[5]
+            if self.move_speed[0] > self.move_speed[1]:
+                self.car_settings[1] -= self.car_settings[3]
+
+            #self.collisionDetect(self.move_radians)
+            # draw the window onto the screen
+            self.frame_rate()
+            self.getDistance(self.move_radians)
+            pygame.display.update()
+
+    def player_control(self):
+        for _event in pygame.event.get():
+            if _event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN:
+            if _event.type == KEYDOWN:
                 # change the keyboard variables
-                if event.key == K_LEFT:
-                    moveRight = False
-                    moveLeft = True
-                if event.key == K_RIGHT:
-                    moveLeft = False
-                    moveRight = True
-                if event.key == K_UP:
-                    moveDown = False
-                    moveUp = True
-                if event.key == K_DOWN:
-                    moveDown = True
-            if event.type == KEYUP:
-                if event.key == K_ESCAPE:
-                    carSettings = [16, 0, 12, 20, 2, 120, 2, 120, 1]
-                    playerSettings = [WINDOWWIDTH / 2 - 50, WINDOWHEIGHT / 2, 0, 0]
-                    degree = 0
-                    movespeed = [0,0,2,0]
-                    option[5]=0
-                    menu()
-                if event.key == K_LEFT or event.key == ord('a'):
-                    moveLeft = False
-                if event.key == K_RIGHT or event.key == ord('d'):
-                    moveRight = False
-                if event.key == K_UP:
-                    moveUp = False
-                if event.key == K_DOWN:
-                    moveDown = False
-    else:
-        #ahead, left, right = getDistance(moveRadians)
-        #dirRatio, speedRatio = funkcjaDawida(ahead, left, right)
-        dirRatio = - 90
-        speedRatio = 100
+                if _event.key == K_LEFT:
+                    self.move_right = False
+                    self.move_left = True
+                if _event.key == K_RIGHT:
+                    self.move_left = False
+                    self.move_right = True
+                if _event.key == K_UP:
+                    self.move_down = False
+                    self.move_up = True
+                if _event.key == K_DOWN:
+                    self.move_down = True
+            if _event.type == KEYUP:
+                if _event.key == K_ESCAPE:
+                    self.move_up = False
+                    self.move_speed = [0, 0, 2, 0]
+                    self.option[5] = 0
+                    self.menu()
+                if _event.key == K_LEFT or _event.key == ord('a'):
+                    self.move_left = False
+                if _event.key == K_RIGHT or _event.key == ord('d'):
+                    self.move_right = False
+                if _event.key == K_UP:
+                    self.move_up = False
+                if _event.key == K_DOWN:
+                    self.move_down = False
+
+    def auto_control(self):
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == KEYUP:
                 if event.key == K_ESCAPE:
-                    carSettings = [16, 0, 12, 20, 2, 120, 2, 120, 1]
-                    playerSettings = [WINDOWWIDTH / 2 - 50, WINDOWHEIGHT / 2, 0, 0]
-                    movespeed = [0, 0, 2, 0]
-                    option[5] = 0
-                    menu()
-        if (speedRatio < 0):
-            carSettings[2] = abs(speedRatio)* 0.12 #from 0 to 12
-            moveUp = False
-            moveDown = True
-        if (speedRatio > 0):
-            carSettings[3] = abs(speedRatio)* 0.2 #from 0 to 20
-            moveDown = False
-            moveUp = True
-        if (speedRatio == 0):
-            moveUp = False
-            moveDown = False
-        if (dirRatio < 0):
-            carSettings[8] = (dirRatio + 110) * 0.01 # from 0.1 to 2.1
-            moveRight = False
-            moveLeft = True
-        if (dirRatio > 0):
-            carSettings[8] = (dirRatio + 110) * 0.01
-            moveLeft = False
-            moveRight = True
-        if (dirRatio == 0):
-            moveLeft = False
-            moveRight = False
+                    self.move_up = False
+                    self.move_speed = [0, 0, 2, 0]
+                    self.option[5] = 0
+                    self.menu()
 
-    # draw the track background onto the surface
-    drawBack()
-
-    # draw the track onto the surface
-    moveTrack()
-
-    # Check the background colour
-    colour = windowSurface.get_at(oldCenter)# centre colour
-    if colour[0] >= 88 and colour[0] <= 91 or colour[0] == 165 or colour[0] == 255:
-        1;
-    else:
-        movespeed[2] = 3
-        if movespeed[0] >4 :
-            carSettings[1] -= carSettings[3]*2
-        elif movespeed[0] < -4 :
-            carSettings[1] += carSettings[3] * 2
-
-    # draw the player onto the surface
-    windowSurface.blit(playerRotatedImage,rotRect)
-    pygame.draw.rect(windowSurface, WHITE, rotRect, 1) #for tests
-
-    # Calculate player direction rotation
-    degree = -5 * playerSettings[2]
-    moveRadians = radians = -degree * (3.142/180)
+        left, ahead, right = self.getDistance(self.move_radians)
+        speedRatio, dirRatio = self.controller.compute(left, ahead, right)
+        if dirRatio < 0:
+            self.car_settings[8] = (-dirRatio + 110) * 0.01  # from 0.1 to 2.1
+            self.move_left = True
+            self.move_right = False
+        if dirRatio > 0:
+            self.car_settings[8] = (dirRatio + 110) * 0.01
+            self.move_left = False
+            self.move_right = True
+        if dirRatio == 0:
+            self.move_left = False
+            self.move_right = False
+        if speedRatio > 0:
+            self.car_settings[2] = abs(speedRatio) * 0.1  # from 0 to 10
+            self.move_up = True
+            self.move_down = False
+        if speedRatio < 0:  # >
+            self.car_settings[3] = abs(speedRatio) * 0.8  # from 0 to 80
+            self.move_up = False
+            self.move_down = True
+        if speedRatio == 0:
+            self.move_up = False
+            self.move_down = False
 
 
-    position[0]-=(movespeed[0]*((math.cos(moveRadians))))
-    position[1]-=(movespeed[0]*((math.sin(moveRadians))))
-    frontWheel[0]=position[0]-(30*((math.cos(radians))))
-    frontWheel[1]=position[1]-(30*((math.sin(radians))))
-    rearWheel[0]=position[0]+(30*(math.cos(radians)))
-    rearWheel[1]=position[1]+(30*(math.sin(radians)))
-    position[2]-=(movespeed[0]*((math.cos(moveRadians))))
-    position[3]-=(movespeed[0]*((math.sin(moveRadians))))
-
-
-    if moveLeft:    # Turn Left
-        if movespeed[0] != 0:
-            carSettings[6]-=1
-            if carSettings[6]==0:
-                playerSettings[2] -= carSettings[8]
-                carSettings[6] = movespeed[2]
-                if playerSettings[2] < 0:
-                    playerSettings[2]=71
-
-    if moveRight:
-        if movespeed[0] != 0:
-            carSettings[6]-=1
-            if carSettings[6]==0:
-                playerSettings[2] += carSettings[8]
-                carSettings[6] = movespeed[2]
-                if playerSettings[2]>71:
-                    playerSettings[2]=0
-
-    # move the player
-    if moveDown:    # Braking
-        carSettings[1] -= carSettings[3]
-    if moveUp:    # Accelerate
-        carSettings[1] += carSettings[2]
-    elif movespeed[0] >= 0:
-        carSettings[1] -= carSettings[4]
-        movespeed[1] = carSettings[0]
-    elif movespeed[0] <0:
-        carSettings[1] += carSettings[4]
-        movespeed[1] = carSettings[0]
-
-    if carSettings[1] >= carSettings[5] and movespeed[0] < movespeed[1]:# Change up gear
-        movespeed[0] +=1
-        carSettings[1] = 0
-    elif carSettings[1] >= carSettings[5] and movespeed[0] >= movespeed[1]:# Accelerate Limiter
-        carSettings[1] = carSettings[5]
-    elif carSettings[1] < 0 and movespeed[0] == -carSettings[0] and moveDown: #moveBackwards
-        carSettings[1] = -carSettings[1]
-    elif carSettings[1] < 0 and movespeed[0] <=0  and moveDown == False: # Braking limiter
-        carSettings[1] = 0
-        movespeed[0] = 0
-    elif carSettings[1] <0:# Change down gears
-        movespeed[0] -=1
-        carSettings[1]=carSettings[5]
-    if movespeed[0] > movespeed[1]:
-        carSettings[1] -= carSettings[3]
-
-    collisionDetect(moveRadians)
-
-    # draw the window onto the screen
-    framerate()
-    pygame.display.update()
+if __name__ == '__main__':
+    game = Game()
+    game.play()
