@@ -57,7 +57,7 @@ class Game:
         self.boost = []
         self.auto_mode = False
 
-        self.number_of_boxes = 80
+        self.number_of_boxes = 100
         self.boxes_list = None
         self.box_positions = [(r.randint(-2500, 1200), r.randint(-2500, 1200)) for _ in range(self.number_of_boxes)]
 
