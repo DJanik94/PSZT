@@ -9,6 +9,7 @@ class FuzzyCarController:
         """Generate space for antecedents"""
         self.inputUniverse = np.linspace(0, 600, num=600, endpoint=True)
         self.differenceUniverse = np.linspace(-15, 15, num=300, endpoint=True)
+
         """Init fuzzy antecedents"""
         self.rightDistance = ctrl.Antecedent(self.inputUniverse, 'right_distance')
         self.centerDistance = ctrl.Antecedent(self.inputUniverse, 'center_distance')
@@ -16,7 +17,7 @@ class FuzzyCarController:
         self.speed = ctrl.Antecedent(self.differenceUniverse, 'speed')
 
         """Generate membership functions for inputs"""
-        self.centerDistance['close'] = fuzz.trimf(self.inputUniverse, [-1, 1, 200])
+        self.centerDistance['close'] = fuzz.trimf(self.inputUniverse, [-1, 0, 200])
         self.centerDistance['safe'] = fuzz.trimf(self.inputUniverse, [1, 210, 420])
         self.centerDistance['far'] = fuzz.trapmf(self.inputUniverse, [220, 420, 600, 600])
 
@@ -46,8 +47,7 @@ class FuzzyCarController:
         self.turn['turn_right'] = fuzz.trimf(self.outputUniverse, [20, 40, 60])
         self.turn['sharp_right'] = fuzz.trimf(self.outputUniverse, [90, 100, 101])
 
-        """Generate rules"""
-
+        """Define rules"""
         self.rule1 = ctrl.Rule(
             antecedent=((self.leftDistance['far'] & self.centerDistance['close'] & self.rightDistance['close'] &
                          self.speed['fast']) |
@@ -82,7 +82,9 @@ class FuzzyCarController:
                         (self.leftDistance['close'] & self.centerDistance['far'] & self.rightDistance['close'] &
                          self.speed['fast']) |
                         (self.leftDistance['close'] & self.centerDistance['safe'] & self.rightDistance['close'] &
-                         self.speed['fast'])),
+                         self.speed['fast']) |
+                        (self.leftDistance['far'] & self.centerDistance['close'] & self.rightDistance['far'] &
+                        self.speed['fast'])),
             consequent=(self.speedControl['brake'], self.turn['do_nothing']), label='brake, do_nothing')
 
         self.rule6 = ctrl.Rule(
@@ -103,13 +105,11 @@ class FuzzyCarController:
             antecedent=((self.leftDistance['far'] & self.centerDistance['far'] & self.rightDistance['safe'] &
                         self.speed['fast']) |
                         (self.leftDistance['far'] & self.centerDistance['safe'] & self.rightDistance['safe'] &
-                        self.speed['safe'])),
+                        self.speed['fast'])),
             consequent=(self.speedControl['do_nothing'], self.turn['turn_left']), label='do_nothing, turn_left')
 
         self.rule9 = ctrl.Rule(
             antecedent=((self.leftDistance['far'] & self.centerDistance['safe'] & self.rightDistance['far'] &
-                        self.speed['fast']) |
-                        (self.leftDistance['far'] & self.centerDistance['close'] & self.rightDistance['far'] &
                         self.speed['fast'])),
             consequent=(self.speedControl['do_nothing'], self.turn['do_nothing']), label='0, 0a')
 
@@ -143,7 +143,7 @@ class FuzzyCarController:
             antecedent=((self.leftDistance['far'] & self.centerDistance['far'] & self.rightDistance['safe'] &
                         self.speed['safe']) |
                         (self.leftDistance['far'] & self.centerDistance['safe'] & self.rightDistance['safe'] &
-                        self.speed['fast']) |
+                        self.speed['safe']) |
                         (self.leftDistance['far'] & self.centerDistance['close'] & self.rightDistance['safe'] &
                          self.speed['safe']) |
                         (self.leftDistance['safe'] & self.centerDistance['safe'] & self.rightDistance['close'] &
@@ -195,8 +195,8 @@ class FuzzyCarController:
         """Initialize computing engine"""
         self.engine_cs = ctrl.ControlSystem(rules=[self.rule1, self.rule2, self.rule3, self.rule4, self.rule5,
                                                    self.rule6, self.rule7, self.rule8, self.rule9, self.rule10,
-                                                   self.rule11, self.rule12, self.rule13, self.rule14,
-                                                   self.rule15, self.rule16, self.rule17])
+                                                   self.rule11, self.rule12, self.rule13, self.rule14, self.rule15,
+                                                   self.rule16, self.rule17])
         self.engine = ctrl.ControlSystemSimulation(self.engine_cs)
 
     def visualise(self):
@@ -212,11 +212,8 @@ class FuzzyCarController:
         self.engine.input['center_distance'] = c_dist
         self.engine.input['right_distance'] = r_dist
         self.engine.input['speed'] = speed
-
         self.engine.compute()
-
         output = (round(self.engine.output['speed_control'], 2), round(self.engine.output['turn'], 2))
-
         return output
 
 
